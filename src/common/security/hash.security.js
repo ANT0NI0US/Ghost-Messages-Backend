@@ -10,14 +10,12 @@ export const hash = async ({
   let cipherText = "";
 
   switch (approach) {
-    case "bcrypt":
-      const salt = (await bcrypt.genSalt(rounds, minor)).toString();
-      cipherText = await bcrypt.hash(plainText, salt);
-      break;
     case "argon2":
       cipherText = await argon2.hash(plainText);
       break;
     default:
+      const salt = (await bcrypt.genSalt(rounds, minor)).toString();
+      cipherText = await bcrypt.hash(plainText, salt);
       break;
   }
 
@@ -28,13 +26,11 @@ export const compare = async (plainText, cipherText, approach = "bcrypt") => {
   let match = "";
 
   switch (approach) {
-    case "bcrypt":
-      match = await bcrypt.compare(plainText, cipherText);
-      break;
     case "argon2":
       match = await argon2.verify(cipherText, plainText);
       break;
     default:
+      match = await bcrypt.compare(plainText, cipherText);
       break;
   }
 

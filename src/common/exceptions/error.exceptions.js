@@ -1,42 +1,42 @@
 export const ErrorResponse = ({
   message = "Error",
   status = 400,
-  extra = undefined,
+  issues = undefined,
 } = {}) => {
-  throw new Error(message, { cause: { status, extra } });
+  throw new Error(message, { cause: { status, issues } });
 };
 
 export const BadRequestException = ({
   message = "BadRequestException",
-  extra = undefined,
+  issues = undefined,
 } = {}) => {
-  return ErrorResponse({ message, status: 400, extra });
+  return ErrorResponse({ message, status: 400, issues });
 };
 
 export const ConflictException = ({
   message = "ConflictException",
-  extra = undefined,
+  issues = undefined,
 } = {}) => {
-  return ErrorResponse({ message, status: 409, extra });
+  return ErrorResponse({ message, status: 409, issues });
 };
 
 export const UnauthorizedException = ({
   message = "UnauthorizedException",
-  extra = undefined,
+  issues = undefined,
 } = {}) => {
-  return ErrorResponse({ message, status: 401, extra });
+  return ErrorResponse({ message, status: 401, issues });
 };
 
 export const NotFoundException = ({
   message = "NotFoundException",
-  extra = undefined,
+  issues = undefined,
 } = {}) => {
-  return ErrorResponse({ message, status: 404, extra });
+  return ErrorResponse({ message, status: 404, issues });
 };
 
 export const ForbiddenException = ({
   message = "ForbiddenException",
-  extra = undefined,
+  issues = undefined,
 } = {}) => {
-  return ErrorResponse({ message, status: 403, extra });
+  return ErrorResponse({ message, status: 403, issues });
 };

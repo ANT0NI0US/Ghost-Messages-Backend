@@ -6,12 +6,13 @@ import {
   messageController,
   userController,
 } from "./modules/index.js";
+import cors from "cors";
 
 const app = express();
 
 BootstrapDB(app);
 
-app.use(express.json());
+app.use(cors(), express.json());
 
 app.all("/", (req, res) =>
   res.status(200).send({ message: "Welcome to BE API 💖" }),
