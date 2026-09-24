@@ -1,8 +1,13 @@
 import { Router } from "express";
 import { SuccessResponseHandling } from "../../common/utils/index.js";
-import { authentication, validation } from "../../middleware/index.js";
-import { profile, updateUser } from "./user.service.js";
+import {
+  authentication,
+  authorization,
+  validation,
+} from "../../middleware/index.js";
+import { allUsers, profile, updateUser } from "./user.service.js";
 import * as validators from "./user.validation.js";
+import { RoleEnum } from "../../common/enum/user.enum.js";
 
 const router = Router();
 
@@ -14,6 +19,20 @@ router.get("/profile", authentication(), async (req, res) => {
     data: user,
   });
 });
+
+router.get(
+  "/all",
+  authentication(),
+  authorization(RoleEnum.ADMIN),
+  async (req, res) => {
+    const user = await allUsers(req.user);
+    return SuccessResponseHandling({
+      res,
+      message: `users retrieved successfully`,
+      data: user,
+    });
+  },
+);
 
 router.patch(
   "/update",

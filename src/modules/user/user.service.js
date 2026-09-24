@@ -1,8 +1,17 @@
-import { findByIdAndUpdate } from "../../common/repository/index.js";
+import { find, findByIdAndUpdate } from "../../common/repository/index.js";
 import { UserModel } from "../../DB/model/index.js";
 
 export const profile = async (user) => {
   return user;
+};
+
+export const allUsers = async (user) => {
+  const users = await find({
+    model: UserModel,
+    filter: { _id: { $ne: user._id } },
+    select: "-password -phone",
+  });
+  return users;
 };
 
 export const updateUser = async (user, updatedData) => {
