@@ -26,7 +26,7 @@ router.post("/signup-with-gmail", async (req, res) => {
 
 router.post("/signup", validation(validators.signup), async (req, res) => {
   const issuer = `${req.protocol}://${req.host}`;
-  const tokens = await signup(req.validate, issuer);
+  const tokens = await signup(req.validate.body, issuer);
 
   return SuccessResponseHandling({
     res,
@@ -38,7 +38,7 @@ router.post("/signup", validation(validators.signup), async (req, res) => {
 
 router.post("/login", validation(validators.login), async (req, res) => {
   const issuer = `${req.protocol}://${req.host}`;
-  const tokens = await login(req.validate, issuer);
+  const tokens = await login(req.validate.body, issuer);
 
   return SuccessResponseHandling({
     res,

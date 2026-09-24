@@ -2,7 +2,12 @@ import { BadRequestException } from "../common/exceptions/index.js";
 
 export const validation = (schema) => {
   return (req, res, next) => {
-    const validationResult = schema.safeParse(req.body);
+    const validationResult = schema.safeParse({
+      body: req.body,
+      query: req.query,
+      params: req.params,
+      headers: req.headers,
+    });
     if (!validationResult.success) {
       throw BadRequestException({
         message: "validation Error",

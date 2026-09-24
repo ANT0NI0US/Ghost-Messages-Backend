@@ -39,7 +39,7 @@ router.patch(
   authentication(),
   validation(validators.update),
   async (req, res) => {
-    const updatedUser = await updateUser(req.user, req.validate);
+    const updatedUser = await updateUser(req.user, req.validate.body);
     return SuccessResponseHandling({
       res,
       message: `user updated successfully`,
