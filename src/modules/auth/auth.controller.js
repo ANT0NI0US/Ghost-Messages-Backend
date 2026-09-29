@@ -4,6 +4,7 @@ import { SuccessResponseHandling } from "../../common/utils/response.utils.js";
 import { authentication, validation } from "../../middleware/index.js";
 import {
   login,
+  logout,
   rotateToken,
   signup,
   signupLoginWithGmail,
@@ -61,5 +62,14 @@ router.post(
     });
   },
 );
+
+router.post("/logout", authentication(), async (req, res) => {
+  await logout(req.payload, req.user, req.body);
+
+  return SuccessResponseHandling({
+    res,
+    message: "success.logout",
+  });
+});
 
 export default router;

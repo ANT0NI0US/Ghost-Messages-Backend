@@ -63,6 +63,7 @@
     "unauthorized": "Unauthorized account",
     "forbidden": "You do not have permission to access this resource",
     "tokenExpired": "Your session has expired, please login again",
+    "tokenRevoked": "This session has been logged out, please login again",
     "invalidToken": "Invalid token",
     "missingTokenPayload": "Missing token payload",
     "invalidUser": "Invalid user",
@@ -80,6 +81,7 @@
     "gmailLogin": "User logged in with Gmail successfully",
     "gmailSignup": "User signed up with Gmail successfully",
     "tokensRotated": "New tokens generated successfully",
+    "logout": "Logged out successfully",
     "userRetrieved": "User retrieved successfully",
     "usersRetrieved": "Users retrieved successfully",
     "userUpdated": "User updated successfully"

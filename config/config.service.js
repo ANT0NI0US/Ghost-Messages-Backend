@@ -10,6 +10,7 @@ export const PORT = parseInt(process.env.PORT ?? "4000");
 const DB_URL = process.env.DB_URL_LOCAL || process.env.DB_URL_ATLAS;
 const DB_NAME = process.env.DB_NAME || "Ghost_Messages";
 export const DB_URI = `${DB_URL}/${DB_NAME}`;
+export const DB_REDIS_URI = process.env.DB_REDIS_URI;
 
 export const ENC_KEY = process.env.ENC_KEY;
 export const IV_LENGTH = parseInt(process.env.IV_LENGTH ?? "16");

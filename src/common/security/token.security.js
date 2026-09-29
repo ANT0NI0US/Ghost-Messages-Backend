@@ -9,9 +9,23 @@ import {
 } from "../../../config/config.service.js";
 import { UserModel } from "../../DB/model/index.js";
 import { RoleEnum, TokenTypeEnum } from "../enum/index.js";
-import { BadRequestException, NotFoundException } from "../exceptions/index.js";
+import {
+  BadRequestException,
+  NotFoundException,
+  UnauthorizedException,
+} from "../exceptions/index.js";
 import { findById } from "../repository/index.js";
 import { decrypt } from "./encryption.security.js";
+import { randomUUID } from "node:crypto";
+import { exist, set } from "../services/index.js";
+
+export const userBaseRevokeToken = ({ userId }) => {
+  return `User::${userId.toString()}::Revoke_Token`;
+};
+
+export const userRevokeToken = ({ userId, jti }) => {
+  return `${userBaseRevokeToken({ userId })}::${jti}`;
+};
 
 export const createToken = async ({
   payload = {},
@@ -70,8 +84,17 @@ export const decodeToken = async ({
 
   const secret = await getSignature({ tokenType, role: decoded.aud[0] });
   const payload = await verifyToken({ token: authorization, secret });
+
   if (!payload?.sub) {
     throw BadRequestException({ message: "error.missingTokenPayload" });
+  }
+
+  if (
+    await exist({
+      key: userRevokeToken({ userId: payload.sub, jti: payload.jti }),
+    })
+  ) {
+    throw UnauthorizedException({ message: "error.tokenRevoked" });
   }
 
   const user = await findById({
@@ -84,6 +107,10 @@ export const decodeToken = async ({
     throw NotFoundException({ message: "error.invalidUser" });
   }
 
+  if ((user.changeCredentialsTime?.getTime() ?? 0) > payload.iat * 1000) {
+    throw UnauthorizedException({ message: "error.tokenRevoked" });
+  }
+
   user.phone = await decrypt(user.phone);
 
   return { user, payload };
@@ -93,6 +120,7 @@ export const createLoginCredentials = async ({ user, options = {} }) => {
   const { accessSignature, refreshSignature } = await getTokenSignatures({
     role: user.role,
   });
+  const jwtid = randomUUID();
   const access_token = await createToken({
     payload: { sub: user.id },
     secret: accessSignature,
@@ -100,6 +128,7 @@ export const createLoginCredentials = async ({ user, options = {} }) => {
       ...options,
       audience: [user.role],
       expiresIn: ACCESS_TOKEN_EXPIRES_IN,
+      jwtid,
     },
   });
 
@@ -110,8 +139,20 @@ export const createLoginCredentials = async ({ user, options = {} }) => {
       ...options,
       audience: [user.role],
       expiresIn: REFRESH_TOKEN_EXPIRES_IN,
+      jwtid,
     },
   });
 
   return { access_token, refresh_token };
+};
+
+export const createRevokeToken = async ({ payload }) => {
+  const consumedTime = Math.ceil(Date.now() / 1000 - payload.iat);
+  const refreshExpiresIn = payload.iat + REFRESH_TOKEN_EXPIRES_IN;
+  const ttl = refreshExpiresIn - consumedTime;
+  await set({
+    key: userRevokeToken({ userId: payload.sub, jti: payload.jti }),
+    value: payload.jti,
+    ttl,
+  });
 };

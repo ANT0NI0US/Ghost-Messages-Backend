@@ -4,7 +4,7 @@ import {
   WEB_CLIENT_IDS,
 } from "../../../config/config.service.js";
 import { UserModel } from "../../DB/model/index.js";
-import { ProviderEnum } from "../../common/enum/index.js";
+import { LogoutEnum, ProviderEnum } from "../../common/enum/index.js";
 import {
   BadRequestException,
   ConflictException,
@@ -14,10 +14,13 @@ import { create, findOne } from "../../common/repository/index.js";
 import {
   compare,
   createLoginCredentials,
+  createRevokeToken,
   decrypt,
   encrypt,
   hash,
+  userBaseRevokeToken,
 } from "../../common/security/index.js";
+import { del, keys } from "../../common/services/cache.service.js";
 
 const client = new OAuth2Client();
 
@@ -107,8 +110,7 @@ export const login = async ({ email, password }, issuer) => {
 
   const match = await compare(password, account.password);
 
-  if (!match)
-    throw ForbiddenException({ message: "error.invalidCredentials" });
+  if (!match) throw ForbiddenException({ message: "error.invalidCredentials" });
 
   account.phone = await decrypt(account.phone);
 
@@ -132,4 +134,23 @@ export const rotateToken = async (payload, user, issuer) => {
   });
 
   return { access_token, refresh_token };
+};
+
+export const logout = async (payload, user, { action = LogoutEnum.DEVICE }) => {
+  switch (action) {
+    case LogoutEnum.ALL:
+      user.changeCredentialsTime = new Date();
+      await user.save();
+      await del({
+        key: await keys({
+          prefix: userBaseRevokeToken({ userId: payload.sub }),
+        }),
+      });
+      break;
+
+    default:
+      await createRevokeToken({ payload });
+      break;
+  }
+  return;
 };

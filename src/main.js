@@ -12,14 +12,12 @@ import cors from "cors";
 
 const app = express();
 
-BootstrapDB(app);
+await BootstrapDB(app);
 
 app.use(cors(), language, express.json());
 
 app.all("/", (req, res) =>
-  res
-    .status(200)
-    .send({ message: translate(req.lang, "success.welcome") }),
+  res.status(200).send({ message: translate(req.lang, "success.welcome") }),
 );
 
 app.use("/message", messageController);
