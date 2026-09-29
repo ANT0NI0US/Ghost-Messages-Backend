@@ -1,6 +1,8 @@
 import express from "express";
 import { BootstrapDB } from "./DB/connection.db.js";
 import { globalErrorHandling } from "./middleware/error.middleware.js";
+import { language } from "./middleware/language.middleware.js";
+import { translate } from "./common/translate/index.js";
 import {
   authController,
   messageController,
@@ -12,10 +14,12 @@ const app = express();
 
 BootstrapDB(app);
 
-app.use(cors(), express.json());
+app.use(cors(), language, express.json());
 
 app.all("/", (req, res) =>
-  res.status(200).send({ message: "Welcome to BE API 💖" }),
+  res
+    .status(200)
+    .send({ message: translate(req.lang, "success.welcome") }),
 );
 
 app.use("/message", messageController);
@@ -24,7 +28,7 @@ app.use("/auth", authController);
 
 app.all("{/*dummy}", (req, res, next) => {
   res.status(404).json({
-    message: "Invalid app routing! ⚠",
+    message: translate(req.lang, "error.routeNotFound"),
   });
 });
 

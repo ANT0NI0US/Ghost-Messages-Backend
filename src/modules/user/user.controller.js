@@ -5,7 +5,7 @@ import {
   authorization,
   validation,
 } from "../../middleware/index.js";
-import { allUsers, profile, updateUser } from "./user.service.js";
+import { allUsers, profile, shareProfile, updateUser } from "./user.service.js";
 import * as validators from "./user.validation.js";
 import { RoleEnum } from "../../common/enum/user.enum.js";
 
@@ -15,7 +15,7 @@ router.get("/profile", authentication(), async (req, res) => {
   const user = await profile(req.user);
   return SuccessResponseHandling({
     res,
-    message: `user retrieved successfully`,
+    message: "success.userRetrieved",
     data: user,
   });
 });
@@ -28,7 +28,7 @@ router.get(
     const user = await allUsers(req.user);
     return SuccessResponseHandling({
       res,
-      message: `users retrieved successfully`,
+      message: "success.usersRetrieved",
       data: user,
     });
   },
@@ -42,8 +42,21 @@ router.patch(
     const updatedUser = await updateUser(req.user, req.validate.body);
     return SuccessResponseHandling({
       res,
-      message: `user updated successfully`,
+      message: "success.userUpdated",
       data: updatedUser,
+    });
+  },
+);
+
+router.get(
+  "/:userId/share-profile",
+  validation(validators.shareProfile),
+  async (req, res) => {
+    const user = await shareProfile(req.params);
+    return SuccessResponseHandling({
+      res,
+      message: "success.userRetrieved",
+      data: user,
     });
   },
 );

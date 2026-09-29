@@ -6,7 +6,7 @@ export const authentication = (tokenType = TokenTypeEnum.ACCESS) => {
   return async (req, res, next) => {
     const { authorization } = req.headers;
     if (!authorization) {
-      throw UnauthorizedException({ message: "unauthorized account" });
+      throw UnauthorizedException({ message: "error.unauthorized" });
     }
     const { user, payload } = await decodeToken({
       authorization,

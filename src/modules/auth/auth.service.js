@@ -34,14 +34,14 @@ export const signupLoginWithGmail = async ({ idToken }, issuer) => {
   const { name, email, picture, email_verified } =
     await verifyGoogleAccount(idToken);
   if (!email_verified) {
-    throw BadRequestException({ message: "email not verified" });
+    throw BadRequestException({ message: "error.emailNotVerified" });
   }
 
   const existingEmail = await findOne({ model: UserModel, filter: { email } });
   if (existingEmail) {
     // if the email already exist with any provider not equal google
     if (existingEmail.provider != ProviderEnum.GOOGLE) {
-      throw ConflictException({ message: "Invalid account provider" });
+      throw ConflictException({ message: "error.invalidProvider" });
     }
     // login with gmail
     const { access_token, refresh_token } = await createLoginCredentials({
@@ -76,7 +76,7 @@ export const signup = async (inputs, issuer) => {
 
   const existingEmail = await findOne({ model: UserModel, filter: { email } });
   if (existingEmail) {
-    throw ConflictException({ message: "Email already exist" });
+    throw ConflictException({ message: "error.emailExists" });
   }
 
   const account = await create({
@@ -103,12 +103,12 @@ export const login = async ({ email, password }, issuer) => {
   });
 
   if (!account)
-    throw ForbiddenException({ message: "Invalid email or password" });
+    throw ForbiddenException({ message: "error.invalidCredentials" });
 
   const match = await compare(password, account.password);
 
   if (!match)
-    throw ForbiddenException({ message: "Invalid email or password" });
+    throw ForbiddenException({ message: "error.invalidCredentials" });
 
   account.phone = await decrypt(account.phone);
 
@@ -124,10 +124,7 @@ export const rotateToken = async (payload, user, issuer) => {
   const accessExpiresIn = (payload.iat + ACCESS_TOKEN_EXPIRES_IN) * 1000;
   const currentTime = Date.now() + 5 * 60000;
   if (currentTime < accessExpiresIn) {
-    throw ConflictException({
-      message:
-        "Sorry we cannot create new login credentials while current access token still within valid time range",
-    });
+    throw ConflictException({ message: "error.rotateTooEarly" });
   }
   const { access_token, refresh_token } = await createLoginCredentials({
     user,

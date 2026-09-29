@@ -1,12 +1,31 @@
 import { z } from "zod";
-import { GenderEnum } from "../../common/enum/index.js";
+import { translate } from "../../common/translate/index.js";
+import { generalValidationFields } from "../../common/validation.js";
 
-export const update = z.object({
-  body: z.strictObject({
-    firstName: z.string().min(2).max(30).optional(),
-    lastName: z.string().min(2).max(30).optional(),
-    phone: z.e164().optional(),
-    DOB: z.coerce.date().optional(),
-    gender: z.enum(GenderEnum).optional(),
-  }),
-});
+export const update = (lang) => {
+  return z.object({
+    body: z.strictObject({
+      firstName: z
+        .string()
+        .min(2, { error: translate(lang, "validation.firstName.min") })
+        .max(30, { error: translate(lang, "validation.firstName.max") })
+        .optional(),
+      lastName: z
+        .string()
+        .min(2, { error: translate(lang, "validation.lastName.min") })
+        .max(30, { error: translate(lang, "validation.lastName.max") })
+        .optional(),
+      phone: generalValidationFields.phone(lang),
+      DOB: generalValidationFields.DOB(lang),
+      gender: generalValidationFields.gender(lang),
+    }),
+  });
+};
+
+export const shareProfile = (lang) => {
+  return z.object({
+    params: z.strictObject({
+      userId: generalValidationFields.id(lang),
+    }),
+  });
+};

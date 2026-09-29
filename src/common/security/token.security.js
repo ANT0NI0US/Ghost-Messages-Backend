@@ -65,13 +65,13 @@ export const decodeToken = async ({
   const decoded = jwt.decode(authorization);
 
   if (!decoded?.aud?.length) {
-    throw BadRequestException({ message: "missing token payload" });
+    throw BadRequestException({ message: "error.missingTokenPayload" });
   }
 
   const secret = await getSignature({ tokenType, role: decoded.aud[0] });
   const payload = await verifyToken({ token: authorization, secret });
   if (!payload?.sub) {
-    throw BadRequestException({ message: "missing token payload" });
+    throw BadRequestException({ message: "error.missingTokenPayload" });
   }
 
   const user = await findById({
@@ -81,7 +81,7 @@ export const decodeToken = async ({
   });
 
   if (!user) {
-    throw NotFoundException({ message: "Invalid user" });
+    throw NotFoundException({ message: "error.invalidUser" });
   }
 
   user.phone = await decrypt(user.phone);

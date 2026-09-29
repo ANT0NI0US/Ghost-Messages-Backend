@@ -1,4 +1,9 @@
-import { find, findByIdAndUpdate } from "../../common/repository/index.js";
+import { NotFoundException } from "../../common/exceptions/error.exceptions.js";
+import {
+  find,
+  findById,
+  findByIdAndUpdate,
+} from "../../common/repository/index.js";
 import { UserModel } from "../../DB/model/index.js";
 
 export const profile = async (user) => {
@@ -21,4 +26,14 @@ export const updateUser = async (user, updatedData) => {
     update: updatedData,
   });
   return updatedUser;
+};
+
+export const shareProfile = async ({ userId }) => {
+  const user = await findById({ model: UserModel, id: userId });
+
+  if (!user) {
+    throw NotFoundException({ message: "Invalid shared account" });
+  }
+
+  return user;
 };

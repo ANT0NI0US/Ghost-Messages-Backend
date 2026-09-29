@@ -1,0 +1,87 @@
+{
+  "validation": {
+    "email": {
+      "invalid": "Invalid email, it must contain 5 to 25 letters, optionally followed by up to 5 digits, and use gmail, yahoo or icloud with .com or .net (e.g. example12@gmail.com)",
+      "required": "Email is required"
+    },
+    "password": {
+      "required": "Password is required",
+      "weak": "Password must contain at least one lowercase letter, one uppercase letter, one number and one special character",
+      "min": "Password must be at least 8 characters",
+      "max": "Password must be at most 16 characters",
+      "mismatch": "Password does not match confirm password"
+    },
+    "username": {
+      "min": "Username must be at least 2 characters",
+      "twoParts": "Username must include 2 parts (first name and last name)"
+    },
+    "firstName": {
+      "required": "First name is required",
+      "min": "First name must be at least 2 characters",
+      "max": "First name must be at most 30 characters"
+    },
+    "lastName": {
+      "required": "Last name is required",
+      "min": "Last name must be at least 2 characters",
+      "max": "Last name must be at most 30 characters"
+    },
+    "phone": {
+      "invalid": "Invalid phone number, use international format like +201234567890"
+    },
+    "DOB": {
+      "invalid": "Invalid date of birth"
+    },
+    "gender": {
+      "invalid": "Invalid gender value"
+    },
+    "role": {
+      "invalid": "Invalid role value"
+    },
+    "userId": {
+      "invalid": "Invalid user id"
+    },
+    "provider": {
+      "invalid": "Invalid provider value"
+    },
+    "general": {
+      "error": "Validation error",
+      "required": "This field is required",
+      "invalidType": "Invalid data type",
+      "unrecognizedKeys": "Unrecognized fields are not allowed",
+      "invalid": "Invalid value"
+    }
+  },
+  "error": {
+    "server": "Something went wrong, server error",
+    "routeNotFound": "Invalid app routing",
+    "invalidId": "Invalid id format",
+    "duplicate": {
+      "email": "This email already exists",
+      "phone": "This phone number already exists",
+      "default": "This value already exists"
+    },
+    "unauthorized": "Unauthorized account",
+    "forbidden": "You do not have permission to access this resource",
+    "tokenExpired": "Your session has expired, please login again",
+    "invalidToken": "Invalid token",
+    "missingTokenPayload": "Missing token payload",
+    "invalidUser": "Invalid user",
+    "emailNotVerified": "Email is not verified",
+    "invalidProvider": "This email is registered with a different sign-in method",
+    "emailExists": "Email already exists",
+    "invalidCredentials": "Invalid email or password",
+    "rotateTooEarly": "Cannot create new login credentials while the current access token is still valid"
+  },
+  "success": {
+    "done": "Done",
+    "welcome": "Welcome to BE API 💖",
+    "signup": "User signed up successfully",
+    "login": "User logged in successfully",
+    "gmailLogin": "User logged in with Gmail successfully",
+    "gmailSignup": "User signed up with Gmail successfully",
+    "tokensRotated": "New tokens generated successfully",
+    "userRetrieved": "User retrieved successfully",
+    "usersRetrieved": "Users retrieved successfully",
+    "userUpdated": "User updated successfully"
+  }
+}

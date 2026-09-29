@@ -7,7 +7,7 @@ authorization(RoleEnum.ADMIN)
 export const authorization = (accessRole) => {
   return async (req, res, next) => {
     if (req.user.role < accessRole) {
-      throw ForbiddenException({ message: "Forbidden Account" });
+      throw ForbiddenException({ message: "error.forbidden" });
     }
 
     next();

@@ -1,38 +1,46 @@
 import { z } from "zod";
-import { GenderEnum } from "../../common/enum/index.js";
+import { translate } from "../../common/translate/index.js";
+import { generalValidationFields } from "../../common/validation.js";
 
-export const loginSchema = z.strictObject({
-  email: z.email(),
-  password: z.string().min(8).max(16),
-});
+export const loginSchema = (lang) => {
+  return z.strictObject({
+    email: generalValidationFields.email(lang),
+    password: generalValidationFields.password(lang),
+  });
+};
 
-export const login = z.object({
-  body: loginSchema,
-});
+export const login = (lang) => {
+  return z.object({
+    body: loginSchema(lang),
+  });
+};
 
-export const signup = z.object({
-  body: loginSchema
-    .safeExtend({
-      username: z.string(),
-      phone: z.e164(),
-      confirmPassword: z.string().min(8).max(16),
-      DOB: z.coerce.date(),
-      gender: z.enum(GenderEnum).optional(),
-    })
-    .superRefine((data, ctx) => {
-      if (data.password != data.confirmPassword) {
-        ctx.addIssue({
-          code: "custom",
-          path: ["confirmPassword"],
-          message: "password mismatch with confirm password",
+export const signup = (lang) => {
+  return z.object({
+    body: loginSchema(lang)
+      .safeExtend({
+        username: generalValidationFields.username(lang),
+        phone: generalValidationFields.phone(lang),
+        confirmPassword: generalValidationFields.password(lang),
+        DOB: generalValidationFields.DOB(lang),
+        gender: generalValidationFields.gender(lang),
+      })
+      .superRefine((data, ctx) => {
+        generalValidationFields.checkEquality({
+          original: "password",
+          copy: "confirmPassword",
+          data,
+          ctx,
+          lang,
+          messageKey: "validation.password.mismatch",
         });
-      }
-      if (!data.username.includes(" ")) {
-        ctx.addIssue({
-          code: "custom",
-          path: ["username"],
-          message: "username must include 2 parts",
-        });
-      }
-    }),
-});
+        if (!data.username.includes(" ")) {
+          ctx.addIssue({
+            code: "custom",
+            path: ["username"],
+            message: translate(lang, "validation.username.twoParts"),
+          });
+        }
+      }),
+  });
+};

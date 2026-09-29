@@ -19,7 +19,7 @@ router.post("/signup-with-gmail", async (req, res) => {
   return SuccessResponseHandling({
     res,
     status,
-    message: `User ${status == 200 ? "login" : "signup"} with Gmail successfully`,
+    message: status == 200 ? "success.gmailLogin" : "success.gmailSignup",
     data: tokens,
   });
 });
@@ -31,7 +31,7 @@ router.post("/signup", validation(validators.signup), async (req, res) => {
   return SuccessResponseHandling({
     res,
     status: 201,
-    message: `user added successfully`,
+    message: "success.signup",
     data: tokens,
   });
 });
@@ -42,7 +42,7 @@ router.post("/login", validation(validators.login), async (req, res) => {
 
   return SuccessResponseHandling({
     res,
-    message: `user logged in successfully`,
+    message: "success.login",
     data: tokens,
   });
 });
@@ -56,7 +56,7 @@ router.post(
 
     return SuccessResponseHandling({
       res,
-      message: `Get new tokens successfully`,
+      message: "success.tokensRotated",
       data: tokens,
     });
   },

@@ -5,27 +5,30 @@ const userSchema = new mongoose.Schema(
   {
     firstName: {
       type: String,
-      minLength: 2,
-      maxLength: 30,
-      required: [true, "firstName is required"],
+      minLength: [2, "validation.firstName.min"],
+      maxLength: [30, "validation.firstName.max"],
+      required: [true, "validation.firstName.required"],
     },
     lastName: {
       type: String,
-      minLength: 2,
-      maxLength: 30,
-      required: [true, "lastName is required"],
+      minLength: [2, "validation.lastName.min"],
+      maxLength: [30, "validation.lastName.max"],
+      required: [true, "validation.lastName.required"],
     },
     email: {
       type: String,
-      required: [true, "email is required"],
+      required: [true, "validation.email.required"],
       trim: true,
       unique: true,
     },
     password: {
       type: String,
-      required: function () {
-        return this.provider == ProviderEnum.SYSTEM;
-      },
+      required: [
+        function () {
+          return this.provider == ProviderEnum.SYSTEM;
+        },
+        "validation.password.required",
+      ],
     },
     phone: String,
     DOB: Date,
@@ -34,17 +37,26 @@ const userSchema = new mongoose.Schema(
     coverImage: [String],
     gender: {
       type: Number,
-      enum: Object.values(GenderEnum),
+      enum: {
+        values: Object.values(GenderEnum),
+        message: "validation.gender.invalid",
+      },
       default: GenderEnum.MALE,
     },
     role: {
       type: Number,
-      enum: Object.values(RoleEnum),
+      enum: {
+        values: Object.values(RoleEnum),
+        message: "validation.role.invalid",
+      },
       default: RoleEnum.USER,
     },
     provider: {
       type: Number,
-      enum: Object.values(ProviderEnum),
+      enum: {
+        values: Object.values(ProviderEnum),
+        message: "validation.provider.invalid",
+      },
       default: ProviderEnum.SYSTEM,
     },
   },
