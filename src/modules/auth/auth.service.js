@@ -128,6 +128,7 @@ export const rotateToken = async (payload, user, issuer) => {
   if (currentTime < accessExpiresIn) {
     throw ConflictException({ message: "error.rotateTooEarly" });
   }
+  // expires in refresh token REFRESH_TOKEN_EXPIRES_IN - (Math.ceil(Date.now() / 1000)) - payload.iat depend on the requirements.
   const { access_token, refresh_token } = await createLoginCredentials({
     user,
     options: { issuer },

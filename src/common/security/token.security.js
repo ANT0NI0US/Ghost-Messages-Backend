@@ -19,14 +19,17 @@ import { decrypt } from "./encryption.security.js";
 import { randomUUID } from "node:crypto";
 import { exist, set } from "../services/index.js";
 
+// BASE REVOKE TOKEN WE USE IT WHEN WE WANNA TO DELETE ALL LOGIN DEVICES + IN userRevokeToken
 export const userBaseRevokeToken = ({ userId }) => {
   return `User::${userId.toString()}::Revoke_Token`;
 };
 
+// USER REVOKE TOKEN THAT IS STORED IN REDIS
 export const userRevokeToken = ({ userId, jti }) => {
   return `${userBaseRevokeToken({ userId })}::${jti}`;
 };
 
+// CREATE NEW TOKEN EVEN IF IT'S AN ACCESS OR REFRESH TOKEN
 export const createToken = async ({
   payload = {},
   secret = ACCESS_USER_TOKEN_SIGNATURE,
@@ -35,6 +38,7 @@ export const createToken = async ({
   return jwt.sign(payload, secret, options);
 };
 
+// VERIFY THE TOKEN EVEN IF IT'S AN ACCESS OR REFRESH TOKEN
 export const verifyToken = async ({
   token = "",
   secret = ACCESS_USER_TOKEN_SIGNATURE,
@@ -42,6 +46,7 @@ export const verifyToken = async ({
   return jwt.verify(token, secret);
 };
 
+// GET THE ACCESS AND REFRESH TOKEN SIGNATURE DEPENDS ON THE USER ROLE (USER - ADMIN)
 export const getTokenSignatures = async ({ role = RoleEnum.USER } = {}) => {
   let signatures;
   switch (role) {
@@ -62,6 +67,7 @@ export const getTokenSignatures = async ({ role = RoleEnum.USER } = {}) => {
   return signatures;
 };
 
+// GET THE ACCESS OR REFRESH TOKEN DEPENDS ON Role AND tokenType
 export const getSignature = async ({
   tokenType = TokenTypeEnum.ACCESS,
   role = RoleEnum.USER,
@@ -76,6 +82,7 @@ export const decodeToken = async ({
   authorization = "",
   tokenType = TokenTypeEnum.ACCESS,
 } = {}) => {
+  // decode is using to get the data from the token without knowing the signature
   const decoded = jwt.decode(authorization);
 
   if (!decoded?.aud?.length) {
@@ -89,6 +96,7 @@ export const decodeToken = async ({
     throw BadRequestException({ message: "error.missingTokenPayload" });
   }
 
+  // get an unauthorized exception when the revoked token is already exist
   if (
     await exist({
       key: userRevokeToken({ userId: payload.sub, jti: payload.jti }),
@@ -107,6 +115,7 @@ export const decodeToken = async ({
     throw NotFoundException({ message: "error.invalidUser" });
   }
 
+  // change credentials time contains the time that user is used to logout from all devices so we throw new unauthorized exception
   if ((user.changeCredentialsTime?.getTime() ?? 0) > payload.iat * 1000) {
     throw UnauthorizedException({ message: "error.tokenRevoked" });
   }
@@ -116,11 +125,14 @@ export const decodeToken = async ({
   return { user, payload };
 };
 
+// CREATE ACCESS AND REFRESH TOKEN
 export const createLoginCredentials = async ({ user, options = {} }) => {
   const { accessSignature, refreshSignature } = await getTokenSignatures({
     role: user.role,
   });
+  // this id we will use it in revoked token
   const jwtid = randomUUID();
+
   const access_token = await createToken({
     payload: { sub: user.id },
     secret: accessSignature,
@@ -146,6 +158,12 @@ export const createLoginCredentials = async ({ user, options = {} }) => {
   return { access_token, refresh_token };
 };
 
+/*
+CREATE REVOKED TOKEN USING payload
+1- consumedTime: THE TIME THAT FINISHED FROM THE TOKEN IS ALREADY CREATED
+2- refreshExpiresIn: WE GET THE REFRESH EXPIRES IN CAUSE WE PREVENT HIM TO USE IT IN A ROTATE TOKEN
+3- ttl: THE TIME THAT IS REMAINING.
+*/
 export const createRevokeToken = async ({ payload }) => {
   const consumedTime = Math.ceil(Date.now() / 1000 - payload.iat);
   const refreshExpiresIn = payload.iat + REFRESH_TOKEN_EXPIRES_IN;

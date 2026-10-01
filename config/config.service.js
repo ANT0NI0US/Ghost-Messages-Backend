@@ -12,6 +12,8 @@ const DB_NAME = process.env.DB_NAME || "Ghost_Messages";
 export const DB_URI = `${DB_URL}/${DB_NAME}`;
 export const DB_REDIS_URI = process.env.DB_REDIS_URI;
 
+// security (Hashing , Encryption)
+export const SALT_ROUND = parseInt(process.env.SALT_ROUND ?? "12");
 export const ENC_KEY = process.env.ENC_KEY;
 export const IV_LENGTH = parseInt(process.env.IV_LENGTH ?? "16");
 

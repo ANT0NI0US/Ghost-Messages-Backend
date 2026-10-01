@@ -19,6 +19,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: [true, "validation.email.required"],
       trim: true,
+      lowercase: true,
       unique: true,
     },
     password: {
@@ -35,6 +36,7 @@ const userSchema = new mongoose.Schema(
     confirmEmail: Date,
     image: String,
     coverImage: [String],
+    deletedAt: Date,
     gender: {
       type: Number,
       enum: {
