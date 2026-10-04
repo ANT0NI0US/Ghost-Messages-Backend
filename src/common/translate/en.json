@@ -40,6 +40,9 @@
     "userId": {
       "invalid": "Invalid user id"
     },
+    "otp": {
+      "invalid": "Invalid OTP code"
+    },
     "provider": {
       "invalid": "Invalid provider value"
     },
@@ -71,17 +74,29 @@
     "invalidProvider": "This email is registered with a different sign-in method",
     "emailExists": "Email already exists",
     "invalidCredentials": "Invalid email or password",
-    "rotateTooEarly": "Cannot create new login credentials while the current access token is still valid"
+    "rotateTooEarly": "Cannot create new login credentials while the current access token is still valid",
+    "otpStillValid": "A valid verification code already exists, please try again later",
+    "otpLimitReached": "You have reached the verification code request limit",
+    "loginLimitReached": "You have reached the maximum number of login attempts",
+    "invalidAccount": "Invalid account",
+    "invalidOtp": "Invalid verification code",
+    "invalidRecipient": "Invalid email recipient",
+    "invalidEmailContent": "Invalid email content"
   },
   "success": {
     "done": "Done",
     "welcome": "Welcome to BE API 💖",
-    "signup": "User signed up successfully",
+    "signup": "Account created successfully, a verification code has been sent to your email",
+    "emailConfirmed": "Email confirmed successfully",
     "login": "User logged in successfully",
     "gmailLogin": "User logged in with Gmail successfully",
     "gmailSignup": "User signed up with Gmail successfully",
     "tokensRotated": "New tokens generated successfully",
     "logout": "Logged out successfully",
+    "otpSent": "Verification code sent successfully",
+    "twoStepVerificationEnabled": "Two-step verification has been enabled successfully",
+    "otpVerified": "Verification code confirmed successfully",
+    "passwordReset": "Password reset successfully",
     "userRetrieved": "User retrieved successfully",
     "usersRetrieved": "Users retrieved successfully",
     "userUpdated": "User updated successfully"

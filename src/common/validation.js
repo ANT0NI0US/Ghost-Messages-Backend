@@ -10,7 +10,7 @@ const PASSWORD_REGEX =
 
 // const EMAIL_REGEX = /^\w{1,100}@(gmail|yahoo|icloud)(\.com|\.net){1,2}$/;
 // const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*\W).+$/;
-// const OTP_REGEX = /^\d{6}$/
+const OTP_REGEX = /^\d{6}$/;
 
 const checkEquality = ({ original, copy, data, ctx, lang, messageKey }) => {
   if (data[original] != data[copy]) {
@@ -58,5 +58,9 @@ export const generalValidationFields = {
     z.string().refine((value) => Types.ObjectId.isValid(value), {
       error: translate(lang, "validation.userId.invalid"),
     }),
+  otp: (lang) =>
+    z
+      .string()
+      .regex(OTP_REGEX, { error: translate(lang, "validation.otp.invalid") }),
   checkEquality,
 };

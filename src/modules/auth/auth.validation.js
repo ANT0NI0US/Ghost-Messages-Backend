@@ -44,3 +44,72 @@ export const signup = (lang) => {
       }),
   });
 };
+
+export const confirmEmailSchema = (lang) => {
+  return z.strictObject({
+    email: generalValidationFields.email(lang),
+    otp: generalValidationFields.otp(lang),
+  });
+};
+
+export const confirmEmail = (lang) => {
+  return z.object({
+    body: confirmEmailSchema(lang),
+  });
+};
+
+export const loginConfirmation = (lang) => {
+  return z.object({
+    body: confirmEmailSchema(lang),
+  });
+};
+
+export const confirmTwoStepVerification = (lang) => {
+  return z.object({
+    body: z.strictObject({
+      otp: generalValidationFields.otp(lang),
+    }),
+  });
+};
+
+export const reSendConfirmEmail = (lang) => {
+  return z.object({
+    body: z.strictObject({
+      email: generalValidationFields.email(lang),
+    }),
+  });
+};
+
+export const requestForgetPasswordCode = (lang) => {
+  return z.object({
+    body: z.strictObject({
+      email: generalValidationFields.email(lang),
+    }),
+  });
+};
+
+export const verifyForgotPasswordCode = (lang) => {
+  return z.object({
+    body: confirmEmailSchema(lang),
+  });
+};
+
+export const resetPassword = (lang) => {
+  return z
+    .object({
+      body: confirmEmailSchema(lang).safeExtend({
+        password: generalValidationFields.password(lang),
+        confirmPassword: generalValidationFields.password(lang),
+      }),
+    })
+    .superRefine((data, ctx) => {
+      generalValidationFields.checkEquality({
+        original: "password",
+        copy: "confirmPassword",
+        data,
+        ctx,
+        lang,
+        messageKey: "validation.password.mismatch",
+      });
+    });
+};

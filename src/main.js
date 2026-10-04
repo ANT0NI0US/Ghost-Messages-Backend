@@ -1,14 +1,14 @@
+import cors from "cors";
 import express from "express";
+import { translate } from "./common/translate/index.js";
 import { BootstrapDB } from "./DB/connection.db.js";
 import { globalErrorHandling } from "./middleware/error.middleware.js";
 import { language } from "./middleware/language.middleware.js";
-import { translate } from "./common/translate/index.js";
 import {
   authController,
   messageController,
   userController,
 } from "./modules/index.js";
-import cors from "cors";
 
 const app = express();
 

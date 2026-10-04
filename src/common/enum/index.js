@@ -2,3 +2,4 @@ export * from "./user.enum.js";
 export * from "./security.enum.js";
 export * from "./language.enum.js";
 export * from "./hash.enum.js";
+export * from "./email.enum.js";

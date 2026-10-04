@@ -13,6 +13,13 @@ export const BadRequestException = ({
   return ErrorResponse({ message, status: 400, issues });
 };
 
+export const TooManyRequestException = ({
+  message = "Too Many Request Exception",
+  issues = undefined,
+} = {}) => {
+  return ErrorResponse({ message, status: 429, issues });
+};
+
 export const ConflictException = ({
   message = "ConflictException",
   issues = undefined,
