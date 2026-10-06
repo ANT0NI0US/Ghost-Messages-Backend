@@ -22,9 +22,11 @@
     "cross-env": "^10.1.0",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
+    "file-type": "^22.1.1",
     "google-auth-library": "^11.1.0",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.9.5",
+    "multer": "^2.4.0",
     "nodemailer": "^10.0.13",
     "redis": "^6.2.1",
     "zod": "^4.6.5"

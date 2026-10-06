@@ -1,13 +1,24 @@
 import { Router } from "express";
-import { SuccessResponseHandling } from "../../common/utils/index.js";
+import { RoleEnum } from "../../common/enum/user.enum.js";
+import {
+  fileValidation,
+  localFileUpload,
+  SuccessResponseHandling,
+} from "../../common/utils/index.js";
 import {
   authentication,
   authorization,
+  localMulterMiddleware,
   validation,
 } from "../../middleware/index.js";
-import { allUsers, profile, shareProfile, updateUser } from "./user.service.js";
+import {
+  allUsers,
+  profile,
+  profileImage,
+  shareProfile,
+  updateUser,
+} from "./user.service.js";
 import * as validators from "./user.validation.js";
-import { RoleEnum } from "../../common/enum/user.enum.js";
 
 const router = Router();
 
@@ -57,6 +68,25 @@ router.get(
       res,
       message: "success.userRetrieved",
       data: user,
+    });
+  },
+);
+
+router.post(
+  "/profile-image",
+  authentication(),
+  localMulterMiddleware({
+    isRequired: true,
+    customPath: "User",
+    multerMiddleware: localFileUpload().single("attachment"),
+    validation: fileValidation.image,
+  }),
+  async (req, res) => {
+    const data = await profileImage(req.user, req.file);
+    return SuccessResponseHandling({
+      res,
+      message: "success.userRetrieved",
+      data,
     });
   },
 );

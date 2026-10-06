@@ -120,8 +120,6 @@ export const decodeToken = async ({
     throw UnauthorizedException({ message: "error.tokenRevoked" });
   }
 
-  user.phone = await decrypt(user.phone);
-
   return { user, payload };
 };
 

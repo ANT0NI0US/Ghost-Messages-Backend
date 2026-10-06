@@ -15,6 +15,7 @@ const app = express();
 await BootstrapDB(app);
 
 app.use(cors(), language, express.json());
+app.use("/assets", express.static("./assets")); // to i can access the files in the assets folder from the browser.
 
 app.all("/", (req, res) =>
   res.status(200).send({ message: translate(req.lang, "success.welcome") }),

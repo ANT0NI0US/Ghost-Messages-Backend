@@ -81,7 +81,9 @@
     "invalidAccount": "حساب غير صالح",
     "invalidOtp": "رمز التحقق غير صحيح",
     "invalidRecipient": "مستلم البريد الإلكتروني غير صحيح",
-    "invalidEmailContent": "محتوى البريد الإلكتروني غير صحيح"
+    "invalidEmailContent": "محتوى البريد الإلكتروني غير صحيح",
+    "fileRequired": "الملف مطلوب",
+    "invalidFileFormat": "صيغة الملف غير صحيحة"
   },
   "success": {
     "done": "تم بنجاح",

@@ -81,7 +81,9 @@
     "invalidAccount": "Invalid account",
     "invalidOtp": "Invalid verification code",
     "invalidRecipient": "Invalid email recipient",
-    "invalidEmailContent": "Invalid email content"
+    "invalidEmailContent": "Invalid email content",
+    "fileRequired": "File is required",
+    "invalidFileFormat": "Invalid file format"
   },
   "success": {
     "done": "Done",
