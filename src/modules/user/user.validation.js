@@ -15,9 +15,9 @@ export const update = (lang) => {
         .min(2, { error: translate(lang, "validation.lastName.min") })
         .max(30, { error: translate(lang, "validation.lastName.max") })
         .optional(),
-      phone: generalValidationFields.phone(lang),
-      DOB: generalValidationFields.DOB(lang),
-      gender: generalValidationFields.gender(lang),
+      phone: generalValidationFields(lang).phone.optional(),
+      DOB: generalValidationFields(lang).DOB.optional(),
+      gender: generalValidationFields(lang).gender.optional(),
     }),
   });
 };
@@ -25,7 +25,7 @@ export const update = (lang) => {
 export const shareProfile = (lang) => {
   return z.object({
     params: z.strictObject({
-      userId: generalValidationFields.id(lang),
+      userId: generalValidationFields(lang).id,
     }),
   });
 };

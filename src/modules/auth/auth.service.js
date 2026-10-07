@@ -193,7 +193,7 @@ export const confirmEmail = async ({ email, otp }, issuer) => {
   });
 
   if (!hashOtp || !(await compare(otp, hashOtp))) {
-    throw ConflictException({ message: "error.invalidOtp" });
+    throw BadRequestException({ message: "error.invalidOtp" });
   }
   account.confirmEmail = new Date();
   await account.save();
@@ -272,7 +272,7 @@ export const verifyForgotPasswordCode = async ({ email, otp }) => {
   });
 
   if (!hashOtp || !(await compare(otp, hashOtp))) {
-    throw ConflictException({ message: "error.invalidOtp" });
+    throw BadRequestException({ message: "error.invalidOtp" });
   }
 
   return account;

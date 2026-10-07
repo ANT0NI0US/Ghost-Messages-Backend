@@ -4,8 +4,8 @@ import { generalValidationFields } from "../../common/validation.js";
 
 export const loginSchema = (lang) => {
   return z.strictObject({
-    email: generalValidationFields.email(lang),
-    password: generalValidationFields.password(lang),
+    email: generalValidationFields(lang).email,
+    password: generalValidationFields(lang).password,
   });
 };
 
@@ -19,14 +19,14 @@ export const signup = (lang) => {
   return z.object({
     body: loginSchema(lang)
       .safeExtend({
-        username: generalValidationFields.username(lang),
-        phone: generalValidationFields.phone(lang),
-        confirmPassword: generalValidationFields.password(lang),
-        DOB: generalValidationFields.DOB(lang),
-        gender: generalValidationFields.gender(lang),
+        username: generalValidationFields(lang).username,
+        phone: generalValidationFields(lang).phone,
+        confirmPassword: generalValidationFields(lang).password,
+        DOB: generalValidationFields(lang).DOB,
+        gender: generalValidationFields(lang).gender,
       })
       .superRefine((data, ctx) => {
-        generalValidationFields.checkEquality({
+        generalValidationFields(lang).checkEquality({
           original: "password",
           copy: "confirmPassword",
           data,
@@ -47,8 +47,8 @@ export const signup = (lang) => {
 
 export const confirmEmailSchema = (lang) => {
   return z.strictObject({
-    email: generalValidationFields.email(lang),
-    otp: generalValidationFields.otp(lang),
+    email: generalValidationFields(lang).email,
+    otp: generalValidationFields(lang).otp,
   });
 };
 
@@ -67,7 +67,7 @@ export const loginConfirmation = (lang) => {
 export const confirmTwoStepVerification = (lang) => {
   return z.object({
     body: z.strictObject({
-      otp: generalValidationFields.otp(lang),
+      otp: generalValidationFields(lang).otp,
     }),
   });
 };
@@ -75,7 +75,7 @@ export const confirmTwoStepVerification = (lang) => {
 export const reSendConfirmEmail = (lang) => {
   return z.object({
     body: z.strictObject({
-      email: generalValidationFields.email(lang),
+      email: generalValidationFields(lang).email,
     }),
   });
 };
@@ -83,7 +83,7 @@ export const reSendConfirmEmail = (lang) => {
 export const requestForgetPasswordCode = (lang) => {
   return z.object({
     body: z.strictObject({
-      email: generalValidationFields.email(lang),
+      email: generalValidationFields(lang).email,
     }),
   });
 };
@@ -98,12 +98,12 @@ export const resetPassword = (lang) => {
   return z
     .object({
       body: confirmEmailSchema(lang).safeExtend({
-        password: generalValidationFields.password(lang),
-        confirmPassword: generalValidationFields.password(lang),
+        password: generalValidationFields(lang).password,
+        confirmPassword: generalValidationFields(lang).password,
       }),
     })
     .superRefine((data, ctx) => {
-      generalValidationFields.checkEquality({
+      generalValidationFields(lang).checkEquality({
         original: "password",
         copy: "confirmPassword",
         data,
