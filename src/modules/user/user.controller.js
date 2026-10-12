@@ -1,30 +1,14 @@
 import { Router } from "express";
-import { RoleEnum } from "../../common/enum/user.enum.js";
-import {
-  fileValidation,
-  localFileUpload,
-  SuccessResponseHandling,
-} from "../../common/utils/index.js";
-import {
-  authentication,
-  authorization,
-  localMulterMiddleware,
-  validation,
-} from "../../middleware/index.js";
-import {
-  allUsers,
-  profile,
-  profileImage,
-  shareProfile,
-  updateUser,
-} from "./user.service.js";
+import { enums, response, localMulter } from "../../common/index.js";
+import * as middleware from "../../middleware/index.js";
+import * as us from "./user.service.js";
 import * as validators from "./user.validation.js";
 
 const router = Router();
 
-router.get("/profile", authentication(), async (req, res) => {
-  const user = await profile(req.user);
-  return SuccessResponseHandling({
+router.get("/profile", middleware.authentication(), async (req, res) => {
+  const user = await us.profile(req.user);
+  return response.SuccessResponseHandling({
     res,
     message: "success.userRetrieved",
     data: user,
@@ -33,11 +17,11 @@ router.get("/profile", authentication(), async (req, res) => {
 
 router.get(
   "/all",
-  authentication(),
-  authorization(RoleEnum.ADMIN),
+  middleware.authentication(),
+  middleware.authorization(enums.RoleEnum.ADMIN),
   async (req, res) => {
-    const user = await allUsers(req.user);
-    return SuccessResponseHandling({
+    const user = await us.allUsers(req.user);
+    return response.SuccessResponseHandling({
       res,
       message: "success.usersRetrieved",
       data: user,
@@ -47,11 +31,11 @@ router.get(
 
 router.patch(
   "/update",
-  authentication(),
-  validation(validators.update),
+  middleware.authentication(),
+  middleware.validation(validators.update),
   async (req, res) => {
-    const updatedUser = await updateUser(req.user, req.validate.body);
-    return SuccessResponseHandling({
+    const updatedUser = await us.updateUser(req.user, req.validate.body);
+    return response.SuccessResponseHandling({
       res,
       message: "success.userUpdated",
       data: updatedUser,
@@ -61,10 +45,10 @@ router.patch(
 
 router.get(
   "/:userId/share-profile",
-  validation(validators.shareProfile),
+  middleware.validation(validators.shareProfile),
   async (req, res) => {
-    const user = await shareProfile(req.params);
-    return SuccessResponseHandling({
+    const user = await us.shareProfile(req.params);
+    return response.SuccessResponseHandling({
       res,
       message: "success.userRetrieved",
       data: user,
@@ -74,16 +58,16 @@ router.get(
 
 router.post(
   "/profile-image",
-  authentication(),
-  localMulterMiddleware({
+  middleware.authentication(),
+  middleware.localMulterMiddleware({
     isRequired: true,
     customPath: "User",
-    multerMiddleware: localFileUpload().single("attachment"),
-    validation: fileValidation.image,
+    multerMiddleware: localMulter.localFileUpload().single("attachment"),
+    validation: localMulter.fileValidation.image,
   }),
   async (req, res) => {
-    const data = await profileImage(req.user, req.file);
-    return SuccessResponseHandling({
+    const data = await us.profileImage(req.user, req.file);
+    return response.SuccessResponseHandling({
       res,
       message: "success.userRetrieved",
       data,

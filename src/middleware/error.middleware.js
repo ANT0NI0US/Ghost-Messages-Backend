@@ -1,5 +1,5 @@
-import { NODE_ENV } from "../../config/config.service.js";
-import { translate } from "../common/translate/index.js";
+import configService from "../../config/config.service.js";
+import { translate } from "../common/index.js";
 
 export const globalErrorHandling = (error, req, res, next) => {
   let status = error.cause?.status ?? 500;
@@ -35,7 +35,7 @@ export const globalErrorHandling = (error, req, res, next) => {
     message = "error.invalidId";
   }
 
-  const mood = NODE_ENV == "production";
+  const mood = configService.NODE_ENV == "production";
   const defaultErrorMessage = "error.server";
   const displayErrorMessage = message || defaultErrorMessage;
   return res.status(status).json({

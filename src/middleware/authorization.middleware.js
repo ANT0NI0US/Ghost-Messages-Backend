@@ -1,4 +1,4 @@
-import { ForbiddenException } from "../common/exceptions/index.js";
+import { exceptions } from "../common/index.js";
 
 /*
 SINGLE
@@ -7,7 +7,7 @@ authorization(RoleEnum.ADMIN)
 export const authorization = (accessRole) => {
   return async (req, res, next) => {
     if (req.user.role < accessRole) {
-      throw ForbiddenException({ message: "error.forbidden" });
+      throw exceptions.ForbiddenException({ message: "error.forbidden" });
     }
 
     next();
@@ -21,7 +21,7 @@ authorization([RoleEnum.ADMIN ,RoleEnum.USER ])
 // export const authorization = (accessRoles) => {
 //   return async (req, res, next) => {
 //     if (!accessRoles.includes(req.user.role)) {
-//       throw ForbiddenException({ message: "Forbidden Account" });
+//       throw exceptions.ForbiddenException({ message: "Forbidden Account" });
 //     }
 
 //     next();
@@ -38,12 +38,12 @@ authorization([RoleEnum.ADMIN ,RoleEnum.USER ] , byLevel= false)
 //     switch (byLevel) {
 //       case true:
 //         if (req.user.role < accessRoles) {
-//           throw ForbiddenException({ message: "Forbidden Account" });
+//           throw exceptions.ForbiddenException({ message: "Forbidden Account" });
 //         }
 //         break;
 //       default:
 //         if (!accessRoles.includes(req.user.role)) {
-//           throw ForbiddenException({ message: "Forbidden Account" });
+//           throw exceptions.ForbiddenException({ message: "Forbidden Account" });
 //         }
 //         break;
 //     }

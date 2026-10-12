@@ -12,3 +12,7 @@ export const ProviderEnum = {
   SYSTEM: 0,
   GOOGLE: 1,
 };
+
+Object.freeze(GenderEnum);
+Object.freeze(RoleEnum);
+Object.freeze(ProviderEnum);

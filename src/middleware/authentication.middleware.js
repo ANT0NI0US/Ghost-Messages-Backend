@@ -1,14 +1,12 @@
-import { TokenTypeEnum } from "../common/enum/index.js";
-import { UnauthorizedException } from "../common/exceptions/index.js";
-import { decodeToken } from "../common/security/index.js";
+import { exceptions, enums, security } from "../common/index.js";
 
-export const authentication = (tokenType = TokenTypeEnum.ACCESS) => {
+export const authentication = (tokenType = enums.TokenTypeEnum.ACCESS) => {
   return async (req, res, next) => {
     const { authorization } = req.headers;
     if (!authorization) {
-      throw UnauthorizedException({ message: "error.unauthorized" });
+      throw exceptions.UnauthorizedException({ message: "error.unauthorized" });
     }
-    const { user, payload } = await decodeToken({
+    const { user, payload } = await security.decodeToken({
       authorization,
       tokenType,
     });

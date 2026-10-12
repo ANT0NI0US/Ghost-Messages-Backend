@@ -1,21 +1,15 @@
-import { NotFoundException } from "../../common/exceptions/error.exceptions.js";
-import {
-  find,
-  findById,
-  findByIdAndUpdate,
-} from "../../common/repository/index.js";
-import { decrypt, encrypt } from "../../common/security/index.js";
-import { UserModel } from "../../DB/model/index.js";
+import { exceptions, security, services } from "../../common/index.js";
+import { models, queries } from "../../DB/index.js";
 
 export const profile = async (user) => {
-  user.phone = await decrypt(user.phone);
+  user.phone = await security.decrypt(user.phone);
 
   return user;
 };
 
 export const allUsers = async (user) => {
-  const users = await find({
-    model: UserModel,
+  const users = await queries.find({
+    model: models.UserModel,
     filter: { _id: { $ne: user._id } },
     select: "-password -phone",
   });
@@ -24,21 +18,22 @@ export const allUsers = async (user) => {
 
 export const updateUser = async (user, updatedData) => {
   if (updatedData.phone) {
-    updatedData.phone = await encrypt(updatedData.phone);
+    updatedData.phone = await security.encrypt(updatedData.phone);
   }
-  const updatedUser = await findByIdAndUpdate({
-    model: UserModel,
+  const updatedUser = await queries.findByIdAndUpdate({
+    model: models.UserModel,
     id: user._id,
     update: updatedData,
   });
+  await services.del({ key: security.userBaseProfile({ userId: user._id }) });
   return updatedUser;
 };
 
 export const shareProfile = async ({ userId }) => {
-  const user = await findById({ model: UserModel, id: userId });
+  const user = await queries.findById({ model: models.UserModel, id: userId });
 
   if (!user) {
-    throw NotFoundException({ message: "Invalid shared account" });
+    throw exceptions.NotFoundException({ message: "error.invalidUser" });
   }
 
   return user;
@@ -48,9 +43,10 @@ export const profileImage = async (user, file) => {
   if (file) {
     user.image = file.finalPath;
     await user.save();
+    await services.del({ key: security.userBaseProfile({ userId: user._id }) });
   }
 
-  user.phone = await decrypt(user.phone);
+  user.phone = await security.decrypt(user.phone);
 
   return user;
 };

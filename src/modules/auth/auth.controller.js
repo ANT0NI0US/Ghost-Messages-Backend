@@ -1,31 +1,16 @@
 import { Router } from "express";
-import { TokenTypeEnum } from "../../common/enum/index.js";
-import { SuccessResponseHandling } from "../../common/utils/response.utils.js";
-import { authentication, validation } from "../../middleware/index.js";
-import {
-  confirmEmail,
-  confirmTwoStepVerification,
-  enableTwoStepVerification,
-  login,
-  loginConfirmation,
-  logout,
-  requestForgetPasswordCode,
-  reSendConfirmEmail,
-  resetPassword,
-  rotateToken,
-  signup,
-  signupLoginWithGmail,
-  verifyForgotPasswordCode,
-} from "./auth.service.js";
+import { enums, response } from "../../common/index.js";
+import * as middleware from "../../middleware/index.js";
+import * as as from "./auth.service.js";
 import * as validators from "./auth.validation.js";
 
 const router = Router();
 
 router.post("/signup-with-gmail", async (req, res) => {
   const issuer = `${req.protocol}://${req.host}`;
-  const { status, ...tokens } = await signupLoginWithGmail(req.body, issuer);
+  const { status, ...tokens } = await as.signupLoginWithGmail(req.body, issuer);
 
-  return SuccessResponseHandling({
+  return response.SuccessResponseHandling({
     res,
     status,
     message: status == 200 ? "success.gmailLogin" : "success.gmailSignup",
@@ -33,25 +18,29 @@ router.post("/signup-with-gmail", async (req, res) => {
   });
 });
 
-router.post("/signup", validation(validators.signup), async (req, res) => {
-  await signup(req.validate.body);
+router.post(
+  "/signup",
+  middleware.validation(validators.signup),
+  async (req, res) => {
+    await as.signup(req.validate.body);
 
-  return SuccessResponseHandling({
-    res,
-    status: 201,
-    message: "success.signup",
-  });
-});
+    return response.SuccessResponseHandling({
+      res,
+      status: 201,
+      message: "success.signup",
+    });
+  },
+);
 
 router.patch(
   "/confirm-email",
-  validation(validators.confirmEmail),
+  middleware.validation(validators.confirmEmail),
   async (req, res) => {
     const issuer = `${req.protocol}://${req.host}`;
 
-    const tokens = await confirmEmail(req.validate.body, issuer);
+    const tokens = await as.confirmEmail(req.validate.body, issuer);
 
-    return SuccessResponseHandling({
+    return response.SuccessResponseHandling({
       res,
       message: "success.emailConfirmed",
       data: tokens,
@@ -61,37 +50,41 @@ router.patch(
 
 router.patch(
   "/resend-confirm-email",
-  validation(validators.reSendConfirmEmail),
+  middleware.validation(validators.reSendConfirmEmail),
   async (req, res) => {
-    await reSendConfirmEmail(req.validate.body);
+    await as.reSendConfirmEmail(req.validate.body);
 
-    return SuccessResponseHandling({
+    return response.SuccessResponseHandling({
       res,
       message: "success.otpSent",
     });
   },
 );
 
-router.post("/login", validation(validators.login), async (req, res) => {
-  const issuer = `${req.protocol}://${req.host}`;
-  const tokens = await login(req.validate.body, issuer);
+router.post(
+  "/login",
+  middleware.validation(validators.login),
+  async (req, res) => {
+    const issuer = `${req.protocol}://${req.host}`;
+    const tokens = await as.login(req.validate.body, issuer);
 
-  return SuccessResponseHandling({
-    res,
-    message: tokens ? "success.login" : "success.otpSent",
-    data: tokens,
-  });
-});
+    return response.SuccessResponseHandling({
+      res,
+      message: tokens ? "success.login" : "success.otpSent",
+      data: tokens,
+    });
+  },
+);
 
 router.patch(
   "/login-confirmation",
-  validation(validators.loginConfirmation),
+  middleware.validation(validators.loginConfirmation),
   async (req, res) => {
     const issuer = `${req.protocol}://${req.host}`;
 
-    const tokens = await loginConfirmation(req.validate.body, issuer);
+    const tokens = await as.loginConfirmation(req.validate.body, issuer);
 
-    return SuccessResponseHandling({
+    return response.SuccessResponseHandling({
       res,
       message: "success.login",
       data: tokens,
@@ -102,11 +95,11 @@ router.patch(
 // 2_STEP_VERIFICATION
 router.post(
   "/enable-two-step-verification",
-  authentication(),
+  middleware.authentication(),
   async (req, res) => {
-    await enableTwoStepVerification(req.user);
+    await as.enableTwoStepVerification(req.user);
 
-    return SuccessResponseHandling({
+    return response.SuccessResponseHandling({
       res,
       message: "success.otpSent",
     });
@@ -115,12 +108,12 @@ router.post(
 
 router.patch(
   "/confirm-two-step-verification",
-  authentication(),
-  validation(validators.confirmTwoStepVerification),
+  middleware.authentication(),
+  middleware.validation(validators.confirmTwoStepVerification),
   async (req, res) => {
-    await confirmTwoStepVerification(req.user, req.validate.body);
+    await as.confirmTwoStepVerification(req.user, req.validate.body);
 
-    return SuccessResponseHandling({
+    return response.SuccessResponseHandling({
       res,
       message: "success.twoStepVerificationEnabled",
     });
@@ -130,11 +123,11 @@ router.patch(
 // FORGOT PASSWORD
 router.post(
   "/request-forgot-password-code",
-  validation(validators.requestForgetPasswordCode),
+  middleware.validation(validators.requestForgetPasswordCode),
   async (req, res) => {
-    await requestForgetPasswordCode(req.validate.body);
+    await as.requestForgetPasswordCode(req.validate.body);
 
-    return SuccessResponseHandling({
+    return response.SuccessResponseHandling({
       res,
       message: "success.otpSent",
     });
@@ -143,11 +136,11 @@ router.post(
 
 router.post(
   "/verify-forgot-password-code",
-  validation(validators.verifyForgotPasswordCode),
+  middleware.validation(validators.verifyForgotPasswordCode),
   async (req, res) => {
-    await verifyForgotPasswordCode(req.validate.body);
+    await as.verifyForgotPasswordCode(req.validate.body);
 
-    return SuccessResponseHandling({
+    return response.SuccessResponseHandling({
       res,
       message: "success.otpVerified",
     });
@@ -156,11 +149,11 @@ router.post(
 
 router.patch(
   "/reset-password",
-  validation(validators.resetPassword),
+  middleware.validation(validators.resetPassword),
   async (req, res) => {
-    await resetPassword(req.validate.body);
+    await as.resetPassword(req.validate.body);
 
-    return SuccessResponseHandling({
+    return response.SuccessResponseHandling({
       res,
       message: "success.passwordReset",
     });
@@ -169,12 +162,12 @@ router.patch(
 
 router.post(
   "/rotate-token",
-  authentication(TokenTypeEnum.REFRESH),
+  middleware.authentication(enums.TokenTypeEnum.REFRESH),
   async (req, res) => {
     const issuer = `${req.protocol}://${req.host}`;
-    const tokens = await rotateToken(req.payload, req.user, issuer);
+    const tokens = await as.rotateToken(req.payload, req.user, issuer);
 
-    return SuccessResponseHandling({
+    return response.SuccessResponseHandling({
       res,
       message: "success.tokensRotated",
       data: tokens,
@@ -182,13 +175,18 @@ router.post(
   },
 );
 
-router.post("/logout", authentication(), async (req, res) => {
-  await logout(req.payload, req.user, req.body);
+router.post(
+  "/logout",
+  middleware.authentication(),
+  middleware.validation(validators.logout),
+  async (req, res) => {
+    await as.logout(req.payload, req.user, req.body);
 
-  return SuccessResponseHandling({
-    res,
-    message: "success.logout",
-  });
-});
+    return response.SuccessResponseHandling({
+      res,
+      message: "success.logout",
+    });
+  },
+);
 
 export default router;

@@ -1,16 +1,18 @@
 import mongoose from "mongoose";
-import { DB_URI, PORT } from "../../config/config.service.js";
-import { UserModel } from "./model/user.model.js";
+import configService from "../../config/config.service.js";
+import { models } from "./index.js";
 import { connectRedis } from "./redis.connection.js";
 
 export const BootstrapDB = async (app) => {
   try {
-    await mongoose.connect(DB_URI, { serverSelectionTimeoutMS: 5000 });
+    await mongoose.connect(configService.DB_URI, {
+      serverSelectionTimeoutMS: 5000,
+    });
     console.log("DB CONNECTED 💥");
-    await UserModel.syncIndexes();
+    await models.UserModel.syncIndexes();
     await connectRedis();
-    app.listen(PORT, () => {
-      console.log(`we are running on port ${PORT}`);
+    app.listen(configService.PORT, () => {
+      console.log(`we are running on port ${configService.PORT}`);
     });
   } catch (error) {
     console.log("FAILED TO CONNECT DB ✖");

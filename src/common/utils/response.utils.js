@@ -1,4 +1,4 @@
-import { translate } from "../translate/index.js";
+import { translate } from "../index.js";
 
 export const SuccessResponseHandling = ({
   res,

@@ -1,8 +1,8 @@
 import { createClient } from "redis";
-import { DB_REDIS_URI } from "../../config/config.service.js";
+import configService from "../../config/config.service.js";
 
 export const client = createClient({
-  url: DB_REDIS_URI,
+  url: configService.DB_REDIS_URI,
 });
 
 export async function connectRedis() {

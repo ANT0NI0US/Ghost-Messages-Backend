@@ -1,6 +1,5 @@
 import { z } from "zod";
-import { GenderEnum } from "./enum/index.js";
-import { translate } from "./translate/index.js";
+import { enums, translate } from "../common/index.js";
 import { Types } from "mongoose";
 
 const EMAIL_REGEX =
@@ -47,7 +46,7 @@ export const generalValidationFields = (lang) => ({
     .max(30, { error: translate(lang, "validation.lastName.max") }),
   phone: z.e164({ error: translate(lang, "validation.phone.invalid") }),
   DOB: z.coerce.date({ error: translate(lang, "validation.DOB.invalid") }),
-  gender: z.enum(GenderEnum, {
+  gender: z.enum(enums.GenderEnum, {
     error: translate(lang, "validation.gender.invalid"),
   }),
   id: z.string().refine((value) => Types.ObjectId.isValid(value), {
@@ -56,5 +55,6 @@ export const generalValidationFields = (lang) => ({
   otp: z
     .string()
     .regex(OTP_REGEX, { error: translate(lang, "validation.otp.invalid") }),
+  jwt: z.string().jwt({ alg: "HS256" }),
   checkEquality,
 });

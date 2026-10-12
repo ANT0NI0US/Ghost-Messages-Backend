@@ -1,10 +1,6 @@
 import nodemailer from "nodemailer";
-import {
-  APP_EMAIL,
-  APP_PASSWORD,
-  APPLICATION_NAME,
-} from "../../../../config/config.service.js";
-import { BadRequestException } from "../../exceptions/error.exceptions.js";
+import configService from "../../../../config/config.service.js";
+import { exceptions } from "../../../common/index.js";
 
 export const UserEmailKey = ({ email, subject }) => {
   return `User::${email}::${subject}_OTP`;
@@ -19,8 +15,8 @@ const transporter = nodemailer.createTransport({
   secure: true,
 
   auth: {
-    user: APP_EMAIL,
-    pass: APP_PASSWORD,
+    user: configService.APP_EMAIL,
+    pass: configService.APP_PASSWORD,
   },
 });
 
@@ -35,14 +31,18 @@ export async function sendEmail({
 } = {}) {
   try {
     if (!to?.length && !cc?.length && !bcc?.length) {
-      throw BadRequestException({ message: "error.invalidRecipient" });
+      throw exceptions.BadRequestException({
+        message: "error.invalidRecipient",
+      });
     }
     if (!text?.length && !html?.length && !attachments?.length) {
-      throw BadRequestException({ message: "error.invalidEmailContent" });
+      throw exceptions.BadRequestException({
+        message: "error.invalidEmailContent",
+      });
     }
 
     const info = await transporter.sendMail({
-      from: `"${APPLICATION_NAME}" <${APP_EMAIL}>`, // sender address
+      from: `"${configService.APPLICATION_NAME}" <${configService.APP_EMAIL}>`, // sender address
       to, // list of recipients
       cc,
       bcc,

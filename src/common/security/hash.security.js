@@ -1,18 +1,18 @@
 import bcrypt from "bcrypt";
 import argon2 from "argon2";
-import { HashEnum } from "../enum/index.js";
-import { SALT_ROUND } from "../../../config/config.service.js";
+import { enums } from "../../common/index.js";
+import configService from "../../../config/config.service.js";
 
 export const hash = async ({
   plainText,
-  rounds = SALT_ROUND,
+  rounds = configService.SALT_ROUND,
   minor = "b",
-  approach = HashEnum.BCRYPT,
+  approach = enums.HashEnum.BCRYPT,
 } = {}) => {
   let cipherText = "";
 
   switch (approach) {
-    case HashEnum.ARGON:
+    case enums.HashEnum.ARGON:
       cipherText = await argon2.hash(plainText);
       break;
     default:
@@ -27,12 +27,12 @@ export const hash = async ({
 export const compare = async (
   plainText,
   cipherText,
-  approach = HashEnum.BCRYPT,
+  approach = enums.HashEnum.BCRYPT,
 ) => {
   let match = "";
 
   switch (approach) {
-    case HashEnum.ARGON:
+    case enums.HashEnum.ARGON:
       match = await argon2.verify(cipherText, plainText);
       break;
     default:

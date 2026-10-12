@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { GenderEnum, ProviderEnum, RoleEnum } from "../../common/enum/index.js";
+import { enums } from "../../common/index.js";
 
 const userSchema = new mongoose.Schema(
   {
@@ -26,7 +26,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: [
         function () {
-          return this.provider == ProviderEnum.SYSTEM;
+          return this.provider == enums.ProviderEnum.SYSTEM;
         },
         "validation.password.required",
       ],
@@ -36,33 +36,33 @@ const userSchema = new mongoose.Schema(
     confirmEmail: Date,
     image: String,
     coverImage: [String],
-    deletedAt: Date,
     gender: {
       type: Number,
       enum: {
-        values: Object.values(GenderEnum),
+        values: Object.values(enums.GenderEnum),
         message: "validation.gender.invalid",
       },
-      default: GenderEnum.MALE,
+      default: enums.GenderEnum.MALE,
     },
     role: {
       type: Number,
       enum: {
-        values: Object.values(RoleEnum),
+        values: Object.values(enums.RoleEnum),
         message: "validation.role.invalid",
       },
-      default: RoleEnum.USER,
+      default: enums.RoleEnum.USER,
     },
     provider: {
       type: Number,
       enum: {
-        values: Object.values(ProviderEnum),
+        values: Object.values(enums.ProviderEnum),
         message: "validation.provider.invalid",
       },
-      default: ProviderEnum.SYSTEM,
+      default: enums.ProviderEnum.SYSTEM,
     },
     changeCredentialsTime: Date,
     twoStepVerification: Boolean,
+    deletedAt: Date,
   },
   {
     timestamps: true,

@@ -1,6 +1,6 @@
 import { z } from "zod";
-import { translate } from "../../common/translate/index.js";
 import { generalValidationFields } from "../../common/validation.js";
+import { enums, translate } from "../../common/index.js";
 
 export const loginSchema = (lang) => {
   return z.strictObject({
@@ -113,3 +113,19 @@ export const resetPassword = (lang) => {
       });
     });
 };
+
+export const logout = (lang) => {
+  return z.object({
+    body: z.strictObject({
+      action: z.enum(enums.LogoutEnum),
+    }),
+  });
+};
+
+// export const rotateToken = (lang) => {
+//   return z.object({
+//     headers: z.object({
+//       authorization: generalValidationFields(lang).jwt,
+//     }),
+//   });
+// };

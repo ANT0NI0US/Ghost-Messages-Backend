@@ -3,3 +3,5 @@ export const EmailSubjectEnum = {
   FORGOT_PASSWORD: "Forgot_Password",
   TWO_STEP_VERIFICATION: "Two_Step_Verification",
 };
+
+Object.freeze(EmailSubjectEnum);

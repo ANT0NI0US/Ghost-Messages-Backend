@@ -1,5 +1,4 @@
-import { BadRequestException } from "../common/exceptions/index.js";
-import { multerUpload } from "../common/utils/index.js";
+import { exceptions, localMulter } from "../common/index.js";
 
 export const localMulterMiddleware = ({
   isRequired = true,
@@ -11,7 +10,7 @@ export const localMulterMiddleware = ({
     multerMiddleware(req, res, async (error) => {
       try {
         if (error) {
-          throw BadRequestException({ message: error.message });
+          throw exceptions.BadRequestException({ message: error.message });
         }
         if (
           isRequired &&
@@ -19,9 +18,11 @@ export const localMulterMiddleware = ({
           !(Array.isArray(req.files) && req.files.length) &&
           !(typeof req.files == "object" && Object.keys(req.files).length)
         ) {
-          throw BadRequestException({ message: "error.fileRequired" });
+          throw exceptions.BadRequestException({
+            message: "error.fileRequired",
+          });
         }
-        await multerUpload({ req, customPath, validation });
+        await localMulter.multerUpload({ req, customPath, validation });
         next();
       } catch (error) {
         next(error);

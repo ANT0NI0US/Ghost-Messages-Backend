@@ -1,13 +1,8 @@
-import {
-  FACEBOOK,
-  INSTAGRAM,
-  TWITTER,
-  WEBSITE_URL,
-} from "../../../../../config/config.service.js";
-import { EmailSubjectEnum } from "../../../enum/email.enum.js";
+import configService from "../../../../../config/config.service.js";
+import { enums } from "../../../../common/index.js";
 
 const htmlTemplates = {
-  [EmailSubjectEnum.CONFIRM_EMAIL]: (data) => {
+  [enums.EmailSubjectEnum.CONFIRM_EMAIL]: (data) => {
     return `<!DOCTYPE html>
                 <html>
                 <head>
@@ -27,7 +22,7 @@ const htmlTemplates = {
                 </h1>
                 </td>
                 <td>
-                <p style="text-align: right;"><a href="${WEBSITE_URL}" target="_blank" style="text-decoration: none;">View In Website</a></p>
+                <p style="text-align: right;"><a href="${configService.WEBSITE_URL}" target="_blank" style="text-decoration: none;">View In Website</a></p>
                 </td>
                 </tr>
                 </table>
@@ -72,14 +67,14 @@ const htmlTemplates = {
                 <td>
                 <div style="margin-top:20px;">
 
-                <a href="${FACEBOOK}" style="text-decoration: none;"><span class="twit" style="padding:10px 9px;color:#fff;border-radius:50%;">
+                <a href="${configService.FACEBOOK}" style="text-decoration: none;"><span class="twit" style="padding:10px 9px;color:#fff;border-radius:50%;">
                 <img src="https://res.cloudinary.com/ddajommsw/image/upload/v1670703402/Group35062_erj5dx.png" width="50px" hight="50px"></span></a>
 
-                <a href="${INSTAGRAM}" style="text-decoration: none;"><span class="twit" style="padding:10px 9px;color:#fff;border-radius:50%;">
+                <a href="${configService.INSTAGRAM}" style="text-decoration: none;"><span class="twit" style="padding:10px 9px;color:#fff;border-radius:50%;">
                 <img src="https://res.cloudinary.com/ddajommsw/image/upload/v1670703402/Group35063_zottpo.png" width="50px" hight="50px"></span>
                 </a>
 
-                <a href="${TWITTER}" style="text-decoration: none;"><span class="twit" style="padding:10px 9px;;color:#fff;border-radius:50%;">
+                <a href="${configService.TWITTER}" style="text-decoration: none;"><span class="twit" style="padding:10px 9px;;color:#fff;border-radius:50%;">
                 <img src="https://res.cloudinary.com/ddajommsw/image/upload/v1670703402/Group_35064_i8qtfd.png" width="50px" hight="50px"></span>
                 </a>
 
@@ -93,7 +88,7 @@ const htmlTemplates = {
                 </body>
                 </html>`;
   },
-  [EmailSubjectEnum.TWO_STEP_VERIFICATION]: (data) => {
+  [enums.EmailSubjectEnum.TWO_STEP_VERIFICATION]: (data) => {
     return `<!DOCTYPE html>
                 <html>
                 <head>
@@ -113,7 +108,7 @@ const htmlTemplates = {
                 </h1>
                 </td>
                 <td>
-                <p style="text-align: right;"><a href="${WEBSITE_URL}" target="_blank" style="text-decoration: none;">View In Website</a></p>
+                <p style="text-align: right;"><a href="${configService.WEBSITE_URL}" target="_blank" style="text-decoration: none;">View In Website</a></p>
                 </td>
                 </tr>
                 </table>
@@ -158,14 +153,14 @@ const htmlTemplates = {
                 <td>
                 <div style="margin-top:20px;">
 
-                <a href="${FACEBOOK}" style="text-decoration: none;"><span class="twit" style="padding:10px 9px;color:#fff;border-radius:50%;">
+                <a href="${configService.FACEBOOK}" style="text-decoration: none;"><span class="twit" style="padding:10px 9px;color:#fff;border-radius:50%;">
                 <img src="https://res.cloudinary.com/ddajommsw/image/upload/v1670703402/Group35062_erj5dx.png" width="50px" hight="50px"></span></a>
 
-                <a href="${INSTAGRAM}" style="text-decoration: none;"><span class="twit" style="padding:10px 9px;color:#fff;border-radius:50%;">
+                <a href="${configService.INSTAGRAM}" style="text-decoration: none;"><span class="twit" style="padding:10px 9px;color:#fff;border-radius:50%;">
                 <img src="https://res.cloudinary.com/ddajommsw/image/upload/v1670703402/Group35063_zottpo.png" width="50px" hight="50px"></span>
                 </a>
 
-                <a href="${TWITTER}" style="text-decoration: none;"><span class="twit" style="padding:10px 9px;;color:#fff;border-radius:50%;">
+                <a href="${configService.TWITTER}" style="text-decoration: none;"><span class="twit" style="padding:10px 9px;;color:#fff;border-radius:50%;">
                 <img src="https://res.cloudinary.com/ddajommsw/image/upload/v1670703402/Group_35064_i8qtfd.png" width="50px" hight="50px"></span>
                 </a>
 
@@ -179,7 +174,7 @@ const htmlTemplates = {
                 </body>
                 </html>`;
   },
-  [EmailSubjectEnum.FORGOT_PASSWORD]: (data) => {
+  [enums.EmailSubjectEnum.FORGOT_PASSWORD]: (data) => {
     return `<!DOCTYPE html>
                 <html>
                 <head>
@@ -199,7 +194,7 @@ const htmlTemplates = {
                 </h1>
                 </td>
                 <td>
-                <p style="text-align: right;"><a href="${WEBSITE_URL}" target="_blank" style="text-decoration: none;">View In Website</a></p>
+                <p style="text-align: right;"><a href="${configService.WEBSITE_URL}" target="_blank" style="text-decoration: none;">View In Website</a></p>
                 </td>
                 </tr>
                 </table>
@@ -244,14 +239,14 @@ const htmlTemplates = {
                 <td>
                 <div style="margin-top:20px;">
 
-                <a href="${FACEBOOK}" style="text-decoration: none;"><span class="twit" style="padding:10px 9px;color:#fff;border-radius:50%;">
+                <a href="${configService.FACEBOOK}" style="text-decoration: none;"><span class="twit" style="padding:10px 9px;color:#fff;border-radius:50%;">
                 <img src="https://res.cloudinary.com/ddajommsw/image/upload/v1670703402/Group35062_erj5dx.png" width="50px" hight="50px"></span></a>
 
-                <a href="${INSTAGRAM}" style="text-decoration: none;"><span class="twit" style="padding:10px 9px;color:#fff;border-radius:50%;">
+                <a href="${configService.INSTAGRAM}" style="text-decoration: none;"><span class="twit" style="padding:10px 9px;color:#fff;border-radius:50%;">
                 <img src="https://res.cloudinary.com/ddajommsw/image/upload/v1670703402/Group35063_zottpo.png" width="50px" hight="50px"></span>
                 </a>
 
-                <a href="${TWITTER}" style="text-decoration: none;"><span class="twit" style="padding:10px 9px;;color:#fff;border-radius:50%;">
+                <a href="${configService.TWITTER}" style="text-decoration: none;"><span class="twit" style="padding:10px 9px;;color:#fff;border-radius:50%;">
                 <img src="https://res.cloudinary.com/ddajommsw/image/upload/v1670703402/Group_35064_i8qtfd.png" width="50px" hight="50px"></span>
                 </a>
 

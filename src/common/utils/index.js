@@ -1,4 +1,4 @@
-export * from "./response.utils.js";
+export * as response from "./response.utils.js";
 export * from "./objectId.js";
-export * from "./email/index.js";
-export * from "./multer/index.js";
+export * as sendEmail from "./email/index.js";
+export * as localMulter from "./multer/index.js";

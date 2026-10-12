@@ -1,5 +1,4 @@
-import { BadRequestException } from "../common/exceptions/index.js";
-import { translate } from "../common/translate/index.js";
+import { exceptions, translate } from "../common/index.js";
 
 const keyFor = (issue) => {
   console.log(issue);
@@ -27,7 +26,7 @@ export const validation = (schema) => {
       { error: (issue) => translate(req.lang, keyFor(issue)) },
     );
     if (!validationResult.success) {
-      throw BadRequestException({
+      throw exceptions.BadRequestException({
         message: "validation.general.error",
         issues: validationResult.error.issues,
       });

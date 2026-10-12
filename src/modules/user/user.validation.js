@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { translate } from "../../common/translate/index.js";
+import { translate } from "../../common/index.js";
 import { generalValidationFields } from "../../common/validation.js";
 
 export const update = (lang) => {

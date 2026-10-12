@@ -1,9 +1,9 @@
+import { fileTypeFromBuffer } from "file-type";
 import multer from "multer";
 import { randomUUID } from "node:crypto";
-import { fileTypeFromBuffer } from "file-type";
-import { BadRequestException } from "../../exceptions/index.js";
 import { mkdir, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
+import { exceptions } from "../../../common/index.js";
 
 export const fileValidation = {
   image: ["image/jpg", "image/jpeg", "image/png"],
@@ -60,7 +60,7 @@ export const localFileUpload = ({ maxFileSize = 5 } = {}) => {
 //     console.log({ result });
 
 //     if (!result || !validation.includes(result.mime)) {
-//       throw BadRequestException({ message: "Invalid file format" });
+//       throw exceptions.BadRequestException({ message: "Invalid file format" });
 //     }
 //     const filePath = resolve(`./assets/${randomUUID()}.${result.ext}`);
 //     await writeFile(filePath, req.file.buffer);
@@ -76,7 +76,9 @@ export const processFile = async ({
   const result = await fileTypeFromBuffer(file.buffer);
 
   if (!result || !validation.includes(result.mime)) {
-    throw BadRequestException({ message: "error.invalidFileFormat" });
+    throw exceptions.BadRequestException({
+      message: "error.invalidFileFormat",
+    });
   }
 
   const customFolderPath = resolve(`./assets/${customPath}`);

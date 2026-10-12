@@ -1,23 +1,13 @@
 import jwt from "jsonwebtoken";
-import {
-  ACCESS_ADMIN_TOKEN_SIGNATURE,
-  ACCESS_TOKEN_EXPIRES_IN,
-  ACCESS_USER_TOKEN_SIGNATURE,
-  REFRESH_ADMIN_TOKEN_SIGNATURE,
-  REFRESH_TOKEN_EXPIRES_IN,
-  REFRESH_USER_TOKEN_SIGNATURE,
-} from "../../../config/config.service.js";
-import { UserModel } from "../../DB/model/index.js";
-import { RoleEnum, TokenTypeEnum } from "../enum/index.js";
-import {
-  BadRequestException,
-  NotFoundException,
-  UnauthorizedException,
-} from "../exceptions/index.js";
-import { findById } from "../repository/index.js";
-import { decrypt } from "./encryption.security.js";
 import { randomUUID } from "node:crypto";
-import { exist, set } from "../services/index.js";
+import configService from "../../../config/config.service.js";
+import { enums, exceptions, services } from "../../common/index.js";
+import { models, queries } from "../../DB/index.js";
+
+// USER PROFILE THAT IS STORED IN REDIS
+export const userBaseProfile = ({ userId }) => {
+  return `User::${userId.toString()}::Profile`;
+};
 
 // BASE REVOKE TOKEN WE USE IT WHEN WE WANNA TO DELETE ALL LOGIN DEVICES + IN userRevokeToken
 export const userBaseRevokeToken = ({ userId }) => {
@@ -32,7 +22,7 @@ export const userRevokeToken = ({ userId, jti }) => {
 // CREATE NEW TOKEN EVEN IF IT'S AN ACCESS OR REFRESH TOKEN
 export const createToken = async ({
   payload = {},
-  secret = ACCESS_USER_TOKEN_SIGNATURE,
+  secret = configService.ACCESS_USER_TOKEN_SIGNATURE,
   options = {},
 } = {}) => {
   return jwt.sign(payload, secret, options);
@@ -41,26 +31,28 @@ export const createToken = async ({
 // VERIFY THE TOKEN EVEN IF IT'S AN ACCESS OR REFRESH TOKEN
 export const verifyToken = async ({
   token = "",
-  secret = ACCESS_USER_TOKEN_SIGNATURE,
+  secret = configService.ACCESS_USER_TOKEN_SIGNATURE,
 } = {}) => {
   return jwt.verify(token, secret);
 };
 
 // GET THE ACCESS AND REFRESH TOKEN SIGNATURE DEPENDS ON THE USER ROLE (USER - ADMIN)
-export const getTokenSignatures = async ({ role = RoleEnum.USER } = {}) => {
+export const getTokenSignatures = async ({
+  role = enums.RoleEnum.USER,
+} = {}) => {
   let signatures;
   switch (role) {
-    case RoleEnum.ADMIN:
+    case enums.RoleEnum.ADMIN:
       signatures = {
-        accessSignature: ACCESS_ADMIN_TOKEN_SIGNATURE,
-        refreshSignature: REFRESH_ADMIN_TOKEN_SIGNATURE,
+        accessSignature: configService.ACCESS_ADMIN_TOKEN_SIGNATURE,
+        refreshSignature: configService.REFRESH_ADMIN_TOKEN_SIGNATURE,
       };
       break;
 
     default:
       signatures = {
-        accessSignature: ACCESS_USER_TOKEN_SIGNATURE,
-        refreshSignature: REFRESH_USER_TOKEN_SIGNATURE,
+        accessSignature: configService.ACCESS_USER_TOKEN_SIGNATURE,
+        refreshSignature: configService.REFRESH_USER_TOKEN_SIGNATURE,
       };
       break;
   }
@@ -69,55 +61,87 @@ export const getTokenSignatures = async ({ role = RoleEnum.USER } = {}) => {
 
 // GET THE ACCESS OR REFRESH TOKEN DEPENDS ON Role AND tokenType
 export const getSignature = async ({
-  tokenType = TokenTypeEnum.ACCESS,
-  role = RoleEnum.USER,
+  tokenType = enums.TokenTypeEnum.ACCESS,
+  role = enums.RoleEnum.USER,
 } = {}) => {
   const { accessSignature, refreshSignature } = await getTokenSignatures({
     role,
   });
-  return tokenType == TokenTypeEnum.ACCESS ? accessSignature : refreshSignature;
+  return tokenType == enums.TokenTypeEnum.ACCESS
+    ? accessSignature
+    : refreshSignature;
 };
 
 export const decodeToken = async ({
   authorization = "",
-  tokenType = TokenTypeEnum.ACCESS,
+  tokenType = enums.TokenTypeEnum.ACCESS,
 } = {}) => {
   // decode is using to get the data from the token without knowing the signature
   const decoded = jwt.decode(authorization);
 
   if (!decoded?.aud?.length) {
-    throw BadRequestException({ message: "error.missingTokenPayload" });
+    throw exceptions.BadRequestException({
+      message: "error.missingTokenPayload",
+    });
   }
 
   const secret = await getSignature({ tokenType, role: decoded.aud[0] });
   const payload = await verifyToken({ token: authorization, secret });
 
   if (!payload?.sub) {
-    throw BadRequestException({ message: "error.missingTokenPayload" });
+    throw exceptions.BadRequestException({
+      message: "error.missingTokenPayload",
+    });
   }
 
-  // get an unauthorized exception when the revoked token is already exist
+  // get an unauthorized exception when the revoked token is already services.exist
   if (
-    await exist({
+    await services.exist({
       key: userRevokeToken({ userId: payload.sub, jti: payload.jti }),
     })
   ) {
-    throw UnauthorizedException({ message: "error.tokenRevoked" });
+    throw exceptions.UnauthorizedException({ message: "error.tokenRevoked" });
   }
 
-  const user = await findById({
-    model: UserModel,
-    id: payload.sub,
-    select: "-password",
+  // check if the user profile is already cached in redis
+  let user = await services.get({
+    key: userBaseProfile({ userId: payload.sub }),
   });
 
-  if (!user) {
-    throw NotFoundException({ message: "error.invalidUser" });
+  if (user) {
+    // the cached value from Redis is a plain object (JSON-parsed), not a real
+    // Mongoose document, so .save() and similar methods would be missing.
+    // hydrate() rebuilds a real document from it without hitting the database.
+    user = models.UserModel.hydrate(user);
+  } else {
+    user = await queries.findById({
+      model: models.UserModel,
+      id: payload.sub,
+      select: "-password",
+    });
+    if (!user) {
+      throw exceptions.NotFoundException({ message: "error.invalidUser" });
+    }
+    // cache the user profile in redis for 1 day.
+    await services.set({
+      key: userBaseProfile({ userId: payload.sub }),
+      value: user,
+      ttl: 60 * 60 * 24, // 1 day
+    });
   }
 
-  // change credentials time contains the time that user is used to logout from all devices so we throw new unauthorized exception
-  if ((user.changeCredentialsTime?.getTime() ?? 0) > payload.iat * 1000) {
-    throw UnauthorizedException({ message: "error.tokenRevoked" });
+  /*
+  - change credentials time contains the time that user is used to logout from all devices so we throw new unauthorized exception
+  - use new Date(...) instead of .getTime() directly: when "user" comes from the Redis cache (services.get),
+  - changeCredentialsTime is a plain ISO string (JSON-parsed), not a Date instance, so it has no .getTime() method.
+  - new Date(...) correctly handles both a Date object (fresh from DB) and a string (from the cache).
+  */
+  const changeCredentialsTime = user.changeCredentialsTime
+    ? new Date(user.changeCredentialsTime).getTime()
+    : 0;
+
+  if (changeCredentialsTime > payload.iat * 1000) {
+    throw exceptions.UnauthorizedException({ message: "error.tokenRevoked" });
   }
 
   return { user, payload };
@@ -137,7 +161,7 @@ export const createLoginCredentials = async ({ user, options = {} }) => {
     options: {
       ...options,
       audience: [user.role],
-      expiresIn: ACCESS_TOKEN_EXPIRES_IN,
+      expiresIn: configService.ACCESS_TOKEN_EXPIRES_IN,
       jwtid,
     },
   });
@@ -148,7 +172,7 @@ export const createLoginCredentials = async ({ user, options = {} }) => {
     options: {
       ...options,
       audience: [user.role],
-      expiresIn: REFRESH_TOKEN_EXPIRES_IN,
+      expiresIn: configService.REFRESH_TOKEN_EXPIRES_IN,
       jwtid,
     },
   });
@@ -164,11 +188,12 @@ CREATE REVOKED TOKEN USING payload
 */
 export const createRevokeToken = async ({ payload }) => {
   const consumedTime = Math.ceil(Date.now() / 1000 - payload.iat);
-  const refreshExpiresIn = payload.iat + REFRESH_TOKEN_EXPIRES_IN;
+  const refreshExpiresIn = payload.iat + configService.REFRESH_TOKEN_EXPIRES_IN;
   const ttl = refreshExpiresIn - consumedTime;
-  await set({
+  await services.set({
     key: userRevokeToken({ userId: payload.sub, jti: payload.jti }),
     value: payload.jti,
     ttl,
   });
+  await services.del({ key: userBaseProfile({ userId: payload.sub }) }); // delete the user profile from redis cache
 };

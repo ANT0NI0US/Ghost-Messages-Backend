@@ -1,18 +1,36 @@
 {
   "name": "GhostMessages",
   "version": "1.0.0",
-  "description": "A simple messaging app using Mongoose",
+  "description": "Backend REST API for Ghost Messages, an anonymous messaging app, built with Express and Mongoose. Features JWT access/refresh authentication with role-based access, email OTP verification, two-step login verification, Google sign-in, Redis-backed rate limiting, file uploads, and bilingual (Arabic/English) responses.",
   "main": "./src/main.js",
   "scripts": {
     "start:dev": "cross-env NODE_ENV=development node --watch-path=./src ./src/main.js",
     "start:prod": "cross-env NODE_ENV=production node ./src/main.js"
   },
   "keywords": [
-    "mongoose",
     "nodejs",
-    "express"
+    "express",
+    "mongoose",
+    "mongodb",
+    "rest-api",
+    "jwt",
+    "authentication",
+    "authorization",
+    "two-factor-authentication",
+    "otp",
+    "redis",
+    "google-oauth",
+    "multer",
+    "file-upload",
+    "zod",
+    "validation",
+    "i18n",
+    "bilingual",
+    "anonymous-messaging",
+    "messaging-app",
+    "ghost-messages"
   ],
-  "author": "antonious nasr",
+  "author": "Antonious Nasr",
   "license": "ISC",
   "type": "module",
   "dependencies": {
