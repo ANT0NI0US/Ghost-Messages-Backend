@@ -10,6 +10,7 @@ export const BootstrapDB = async (app) => {
     });
     console.log("DB CONNECTED 💥");
     await models.UserModel.syncIndexes();
+    await models.MessageModel.syncIndexes();
     await connectRedis();
     app.listen(configService.PORT, () => {
       console.log(`we are running on port ${configService.PORT}`);

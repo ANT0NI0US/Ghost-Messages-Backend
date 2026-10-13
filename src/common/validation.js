@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { enums, translate } from "../common/index.js";
 import { Types } from "mongoose";
+import configService from "../../config/config.service.js";
 
 const EMAIL_REGEX =
   /^(?=.*[a-zA-Z]{5,25})(?=.*\d{0,5}).{1,30}@(gmail|yahoo|icloud)(\.com|\.net){1,2}$/;
@@ -56,5 +57,25 @@ export const generalValidationFields = (lang) => ({
     .string()
     .regex(OTP_REGEX, { error: translate(lang, "validation.otp.invalid") }),
   jwt: z.string().jwt({ alg: "HS256" }),
+  file: z.strictObject(
+    {
+      fieldname: z.string(),
+      originalname: z.string(),
+      encoding: z.string(),
+      mimetype: z.string(),
+      buffer: z.instanceof(Buffer),
+      size: z.number(),
+      path: z.string(),
+    },
+    { error: translate(lang, "validation.file.invalid") },
+  ),
+  page: z.coerce
+    .number()
+    .min(1, { error: translate(lang, "validation.page.min") })
+    .default(configService.PAGE),
+  limit: z.coerce
+    .number()
+    .min(1, { error: translate(lang, "validation.limit.min") })
+    .default(configService.PAGINATION_LIMIT),
   checkEquality,
 });

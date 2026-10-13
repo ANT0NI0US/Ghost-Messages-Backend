@@ -434,7 +434,8 @@ export const confirmTwoStepVerification = async (user, { otp }) => {
   }
 
   user.twoStepVerification = true;
-  await user.save();
+  // we use validateModifiedOnly: true cause we remove password from back in all cases and we don't want to validate it.
+  await user.save({ validateModifiedOnly: true });
 
   await services.del({
     key: sendEmail.UserEmailKey({
@@ -468,12 +469,13 @@ export const rotateToken = async (payload, user, issuer) => {
 export const logout = async (
   payload,
   user,
-  { action = enums.LogoutEnum.DEVICE },
+  { action = enums.LogoutEnum.DEVICE } = {},
 ) => {
   switch (action) {
     case enums.LogoutEnum.ALL:
       user.changeCredentialsTime = new Date();
-      await user.save();
+      // we use validateModifiedOnly: true cause we remove password from back in all cases and we don't want to validate it.
+      await user.save({ validateModifiedOnly: true });
 
       const userRevokeKeys = await services.keys({
         prefix: security.userBaseRevokeToken({ userId: payload.sub }),

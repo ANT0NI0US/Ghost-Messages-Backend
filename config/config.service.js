@@ -8,7 +8,7 @@ config({ path: resolve(`./config/.env.${NODE_ENV}`) });
 // GENERAL
 export const PORT = parseInt(process.env.PORT ?? "4000");
 export const APPLICATION_NAME = process.env.APPLICATION_NAME;
-export const WEBSITE_URL = process.env.WEBSITE_URL;
+export const WEBSITE_URL = `${process.env.WEBSITE_URL}${PORT}/`;
 
 // DATABASE
 const DB_URL = process.env.DB_URL_LOCAL || process.env.DB_URL_ATLAS;
@@ -57,6 +57,13 @@ export const MAX_INCORRECT_PASSWORD_ATTEMPTS = parseInt(
   process.env.MAX_INCORRECT_PASSWORD_ATTEMPTS ?? "5",
 );
 
+// PAGINATION
+export const PAGINATION_LIMIT = parseInt(process.env.PAGINATION_LIMIT ?? "5");
+export const PAGE = parseInt(process.env.PAGE ?? "1");
+
+// CORS
+export const ORIGINS = process.env.ORIGINS.split(",") || [];
+
 export default {
   NODE_ENV,
   PORT,
@@ -83,4 +90,7 @@ export default {
   BLOCK_OTP_TIME,
   MAX_OTP_TRIALS,
   MAX_INCORRECT_PASSWORD_ATTEMPTS,
+  PAGINATION_LIMIT,
+  PAGE,
+  ORIGINS,
 };

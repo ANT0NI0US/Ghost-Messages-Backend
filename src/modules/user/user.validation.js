@@ -29,3 +29,18 @@ export const shareProfile = (lang) => {
     }),
   });
 };
+
+export const GetAllUsers = (lang) => {
+  return z.object({
+    query: z.strictObject({
+      page: generalValidationFields(lang).page,
+      limit: generalValidationFields(lang).limit,
+    }),
+  });
+};
+
+export const profileImage = (lang) => {
+  return z.object({
+    file: generalValidationFields(lang).file,
+  });
+};

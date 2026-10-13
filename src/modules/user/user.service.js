@@ -7,13 +7,19 @@ export const profile = async (user) => {
   return user;
 };
 
-export const allUsers = async (user) => {
-  const users = await queries.find({
+export const allUsers = async (user, { page, limit } = {}) => {
+  const data = await queries.paginate({
     model: models.UserModel,
     filter: { _id: { $ne: user._id } },
+    options: {
+      sort: { createdAt: -1 },
+    },
     select: "-password -phone",
+    page,
+    limit,
   });
-  return users;
+
+  return data;
 };
 
 export const updateUser = async (user, updatedData) => {
@@ -41,8 +47,9 @@ export const shareProfile = async ({ userId }) => {
 
 export const profileImage = async (user, file) => {
   if (file) {
-    user.image = file.finalPath;
-    await user.save();
+    user.image = file.path;
+    // we use validateModifiedOnly: true cause we remove password from back in all cases and we don't want to validate it.
+    await user.save({ validateModifiedOnly: true });
     await services.del({ key: security.userBaseProfile({ userId: user._id }) });
   }
 

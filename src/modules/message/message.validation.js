@@ -1,0 +1,60 @@
+import { z } from "zod";
+import { enums, translate } from "../../common/index.js";
+import { generalValidationFields } from "../../common/validation.js";
+
+export const createMessage = (lang) => {
+  return z
+    .object({
+      body: z.strictObject({
+        receiverId: generalValidationFields(lang).id,
+        content: z
+          .string()
+          .min(2, { error: translate(lang, "validation.content.min") })
+          .max(50000, { error: translate(lang, "validation.content.max") })
+          .optional(),
+      }),
+      files: z.array(generalValidationFields(lang).file).max(3).optional(),
+    })
+    .superRefine((data, ctx) => {
+      if (!data.body.content && !data.files?.length) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["content"],
+          message: translate(lang, "validation.content.required"),
+        });
+      }
+    });
+};
+
+export const getAllMessages = (lang) => {
+  return z.object({
+    query: z.strictObject({
+      type: z.coerce
+        .number()
+        .pipe(
+          z.enum(enums.MessageTypeEnum, {
+            error: translate(lang, "validation.messageType.invalid"),
+          }),
+        )
+        .default(enums.MessageTypeEnum.RECEIVER),
+      page: generalValidationFields(lang).page,
+      limit: generalValidationFields(lang).limit,
+    }),
+  });
+};
+
+export const deleteMessage = (lang) => {
+  return z.object({
+    params: z.strictObject({
+      messageId: generalValidationFields(lang).id,
+    }),
+  });
+};
+
+export const getMessageById = (lang) => {
+  return z.object({
+    params: z.strictObject({
+      messageId: generalValidationFields(lang).id,
+    }),
+  });
+};

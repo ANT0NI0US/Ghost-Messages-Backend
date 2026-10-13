@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 import { randomUUID } from "node:crypto";
 import configService from "../../../config/config.service.js";
-import { enums, exceptions, services } from "../../common/index.js";
+import { enums, exceptions, security, services } from "../../common/index.js";
 import { models, queries } from "../../DB/index.js";
 
 // USER PROFILE THAT IS STORED IN REDIS
@@ -196,4 +196,32 @@ export const createRevokeToken = async ({ payload }) => {
     ttl,
   });
   await services.del({ key: userBaseProfile({ userId: payload.sub }) }); // delete the user profile from redis cache
+};
+
+export const basicAuth = async ({ email, password }) => {
+  // Get the account that has the same email and signup with system and the confirmationEmail is true.
+  const account = await queries.findOne({
+    model: models.UserModel,
+    filter: {
+      email,
+      provider: enums.ProviderEnum.SYSTEM,
+      confirmEmail: { $exists: true },
+    },
+  });
+
+  // If there is no account invalid credentials.
+  if (!account)
+    throw exceptions.ForbiddenException({
+      message: "error.invalidCredentials",
+    });
+
+  // Compare between the password that user enter and the actual user password.
+  const match = await security.compare(password, account.password);
+
+  if (!match)
+    throw exceptions.ForbiddenException({
+      message: "error.invalidCredentials",
+    });
+
+  return account;
 };

@@ -117,7 +117,7 @@ export const resetPassword = (lang) => {
 export const logout = (lang) => {
   return z.object({
     body: z.strictObject({
-      action: z.enum(enums.LogoutEnum),
+      action: z.enum(enums.LogoutEnum).default(enums.LogoutEnum.DEVICE),
     }),
   });
 };

@@ -46,6 +46,26 @@
     "provider": {
       "invalid": "Invalid provider value"
     },
+    "content": {
+      "min": "Message content must be at least 2 characters",
+      "max": "Message content must be at most 50000 characters",
+      "required": "Message must include content or at least one attachment"
+    },
+    "receiverId": {
+      "required": "Receiver is required"
+    },
+    "messageType": {
+      "invalid": "Invalid message type"
+    },
+    "page": {
+      "min": "Page must be at least 1"
+    },
+    "limit": {
+      "min": "Limit must be at least 1"
+    },
+    "file": {
+      "invalid": "Invalid attached file"
+    },
     "general": {
       "error": "Validation error",
       "required": "This field is required",
@@ -83,7 +103,12 @@
     "invalidRecipient": "Invalid email recipient",
     "invalidEmailContent": "Invalid email content",
     "fileRequired": "File is required",
-    "invalidFileFormat": "Invalid file format"
+    "invalidFileFormat": "Invalid file format",
+    "invalidReceiver": "Invalid receiver id",
+    "invalidMessageId": "Invalid message id",
+    "messageNotFound": "No message found",
+    "invalidAuthKey": "Invalid authentication key",
+    "basicAuthNotAllowed": "Basic authentication is not allowed for this endpoint, please use your access token"
   },
   "success": {
     "done": "Done",
@@ -101,6 +126,10 @@
     "passwordReset": "Password reset successfully",
     "userRetrieved": "User retrieved successfully",
     "usersRetrieved": "Users retrieved successfully",
-    "userUpdated": "User updated successfully"
+    "userUpdated": "User updated successfully",
+    "messageCreated": "Message sent successfully",
+    "messagesRetrieved": "Messages retrieved successfully",
+    "messageRetrieved": "Message retrieved successfully",
+    "messageDeleted": "Message deleted successfully"
   }
 }

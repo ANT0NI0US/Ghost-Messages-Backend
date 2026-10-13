@@ -22,6 +22,8 @@ export const validation = (schema) => {
         query: req.query,
         params: req.params,
         headers: req.headers,
+        files: req.files,
+        file: req.file,
       },
       { error: (issue) => translate(req.lang, keyFor(issue)) },
     );

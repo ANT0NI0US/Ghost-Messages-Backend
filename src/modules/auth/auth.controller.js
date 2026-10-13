@@ -162,7 +162,10 @@ router.patch(
 
 router.post(
   "/rotate-token",
-  middleware.authentication(enums.TokenTypeEnum.REFRESH),
+  middleware.authentication({
+    tokenType: enums.TokenTypeEnum.REFRESH,
+    allowBasic: false,
+  }),
   async (req, res) => {
     const issuer = `${req.protocol}://${req.host}`;
     const tokens = await as.rotateToken(req.payload, req.user, issuer);
@@ -177,10 +180,10 @@ router.post(
 
 router.post(
   "/logout",
-  middleware.authentication(),
+  middleware.authentication({ allowBasic: false }),
   middleware.validation(validators.logout),
   async (req, res) => {
-    await as.logout(req.payload, req.user, req.body);
+    await as.logout(req.payload, req.user, req.validate.body);
 
     return response.SuccessResponseHandling({
       res,

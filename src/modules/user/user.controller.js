@@ -19,12 +19,13 @@ router.get(
   "/all",
   middleware.authentication(),
   middleware.authorization(enums.RoleEnum.ADMIN),
+  middleware.validation(validators.GetAllUsers),
   async (req, res) => {
-    const user = await us.allUsers(req.user);
+    const users = await us.allUsers(req.user, req.validate.query);
     return response.SuccessResponseHandling({
       res,
       message: "success.usersRetrieved",
-      data: user,
+      data: users,
     });
   },
 );
@@ -65,6 +66,7 @@ router.post(
     multerMiddleware: localMulter.localFileUpload().single("attachment"),
     validation: localMulter.fileValidation.image,
   }),
+  middleware.validation(validators.profileImage),
   async (req, res) => {
     const data = await us.profileImage(req.user, req.file);
     return response.SuccessResponseHandling({

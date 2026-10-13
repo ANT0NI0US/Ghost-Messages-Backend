@@ -4,6 +4,7 @@ import { randomUUID } from "node:crypto";
 import { mkdir, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { exceptions } from "../../../common/index.js";
+import configService from "../../../../config/config.service.js";
 
 export const fileValidation = {
   image: ["image/jpg", "image/jpeg", "image/png"],
@@ -89,7 +90,7 @@ export const processFile = async ({
   const filePath = resolve(`./${uniqueFilePath}`);
   await writeFile(filePath, file.buffer);
 
-  file.finalPath = uniqueFilePath;
+  file.path = `${configService.WEBSITE_URL}${uniqueFilePath}`;
 
   return file;
 };
