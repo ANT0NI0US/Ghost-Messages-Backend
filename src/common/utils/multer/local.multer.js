@@ -1,7 +1,7 @@
 import { fileTypeFromBuffer, fileTypeFromFile } from "file-type";
 import multer from "multer";
 import { randomUUID } from "node:crypto";
-import { mkdir, writeFile, unlink, exists, readFile } from "node:fs/promises";
+import { mkdir, writeFile, unlink, readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { exceptions } from "../../../common/index.js";
 import configService from "../../../../config/config.service.js";
