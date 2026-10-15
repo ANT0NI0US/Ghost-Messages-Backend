@@ -4,7 +4,7 @@ import * as middleware from "../../middleware/index.js";
 import * as as from "./auth.service.js";
 import * as validators from "./auth.validation.js";
 
-const router = Router();
+const router = Router({ caseSensitive: true, strict: true });
 
 router.post("/signup-with-gmail", async (req, res) => {
   const issuer = `${req.protocol}://${req.host}`;

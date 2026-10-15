@@ -77,5 +77,9 @@ export const generalValidationFields = (lang) => ({
     .number()
     .min(1, { error: translate(lang, "validation.limit.min") })
     .default(configService.PAGINATION_LIMIT),
+  messageContent: z
+    .string()
+    .min(2, { error: translate(lang, "validation.content.min") })
+    .max(50000, { error: translate(lang, "validation.content.max") }),
   checkEquality,
 });

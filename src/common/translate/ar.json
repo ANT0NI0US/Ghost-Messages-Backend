@@ -54,6 +54,21 @@
     "receiverId": {
       "required": "المستلم مطلوب"
     },
+    "targetUserId": {
+      "required": "الشخص المطلوب كشف هويته مطلوب"
+    },
+    "senderId": {
+      "required": "المرسل مطلوب"
+    },
+    "requesterId": {
+      "required": "مقدّم الطلب مطلوب"
+    },
+    "messageId": {
+      "required": "معرّف الرسالة مطلوب"
+    },
+    "requestStatus": {
+      "invalid": "حالة الطلب غير صحيحة"
+    },
     "messageType": {
       "invalid": "نوع الرسالة غير صحيح"
     },
@@ -108,7 +123,12 @@
     "invalidMessageId": "معرّف الرسالة غير صحيح",
     "messageNotFound": "لا توجد رسالة بهذا المعرّف",
     "invalidAuthKey": "مفتاح المصادقة غير صالح",
-    "basicAuthNotAllowed": "لا يمكن استخدام هذا النوع من تسجيل الدخول هنا، من فضلك استخدم رمز الدخول (access token)"
+    "basicAuthNotAllowed": "لا يمكن استخدام هذا النوع من تسجيل الدخول هنا، من فضلك استخدم رمز الدخول (access token)",
+    "requestNotFound": "الطلب غير موجود",
+    "anonymousMessageNoSender": "تم إرسال هذه الرسالة بدون تسجيل دخول، فليس لها مرسل معروف",
+    "conversationNotFound": "المحادثة غير موجودة",
+    "requestAlreadySent": "لقد أرسلت بالفعل طلبًا بخصوص هذه الرسالة",
+    "requestAlreadyHandled": "تم اتخاذ إجراء بخصوص هذا الطلب بالفعل"
   },
   "success": {
     "done": "تم بنجاح",
@@ -130,6 +150,11 @@
     "messageCreated": "تم إرسال الرسالة بنجاح",
     "messagesRetrieved": "تم جلب الرسائل بنجاح",
     "messageRetrieved": "تم جلب الرسالة بنجاح",
-    "messageDeleted": "تم حذف الرسالة بنجاح"
+    "messageDeleted": "تم حذف الرسالة بنجاح",
+    "requestsRetrieved": "تم جلب الطلبات بنجاح",
+    "requestActionTaken": "تم تحديث الطلب بنجاح",
+    "requestCreated": "تم إرسال طلب كشف الهوية بنجاح",
+    "conversationMessagesRetrieved": "تم جلب رسائل المحادثة بنجاح",
+    "conversationMessageSent": "تم إرسال الرسالة بنجاح"
   }
 }

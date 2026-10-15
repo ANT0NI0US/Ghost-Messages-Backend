@@ -54,6 +54,21 @@
     "receiverId": {
       "required": "Receiver is required"
     },
+    "targetUserId": {
+      "required": "Target user is required"
+    },
+    "senderId": {
+      "required": "Sender is required"
+    },
+    "requesterId": {
+      "required": "Requester is required"
+    },
+    "messageId": {
+      "required": "Message id is required"
+    },
+    "requestStatus": {
+      "invalid": "Invalid request status"
+    },
     "messageType": {
       "invalid": "Invalid message type"
     },
@@ -108,7 +123,12 @@
     "invalidMessageId": "Invalid message id",
     "messageNotFound": "No message found",
     "invalidAuthKey": "Invalid authentication key",
-    "basicAuthNotAllowed": "Basic authentication is not allowed for this endpoint, please use your access token"
+    "basicAuthNotAllowed": "Basic authentication is not allowed for this endpoint, please use your access token",
+    "requestNotFound": "Request not found",
+    "anonymousMessageNoSender": "This message was sent anonymously and has no identifiable sender",
+    "conversationNotFound": "Conversation not found",
+    "requestAlreadySent": "You have already sent a request for this message",
+    "requestAlreadyHandled": "An action has already been taken on this request"
   },
   "success": {
     "done": "Done",
@@ -130,6 +150,11 @@
     "messageCreated": "Message sent successfully",
     "messagesRetrieved": "Messages retrieved successfully",
     "messageRetrieved": "Message retrieved successfully",
-    "messageDeleted": "Message deleted successfully"
+    "messageDeleted": "Message deleted successfully",
+    "requestsRetrieved": "Requests retrieved successfully",
+    "requestActionTaken": "Request updated successfully",
+    "requestCreated": "Identity request sent successfully",
+    "conversationMessagesRetrieved": "Conversation messages retrieved successfully",
+    "conversationMessageSent": "Message sent successfully"
   }
 }

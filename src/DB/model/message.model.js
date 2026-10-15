@@ -21,6 +21,10 @@ const messageSchema = new mongoose.Schema(
       ref: "User",
       required: [true, "validation.receiverId.required"],
     },
+    conversationId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Conversation",
+    },
   },
   {
     timestamps: true,

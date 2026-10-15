@@ -4,7 +4,7 @@ import * as middleware from "../../middleware/index.js";
 import * as us from "./user.service.js";
 import * as validators from "./user.validation.js";
 
-const router = Router();
+const router = Router({ caseSensitive: true, strict: true });
 
 router.get("/profile", middleware.authentication(), async (req, res) => {
   const user = await us.profile(req.user);
@@ -63,12 +63,12 @@ router.post(
   middleware.localMulterMiddleware({
     isRequired: true,
     customPath: "User",
-    multerMiddleware: localMulter.localFileUpload().single("attachment"),
+    multerMiddleware: localMulter.memoryFileUpload().single("attachment"),
     validation: localMulter.fileValidation.image,
   }),
   middleware.validation(validators.profileImage),
   async (req, res) => {
-    const data = await us.profileImage(req.user, req.file);
+    const data = await us.profileImage(req.user, req.validate.file);
     return response.SuccessResponseHandling({
       res,
       message: "success.userRetrieved",

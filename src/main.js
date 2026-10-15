@@ -34,6 +34,8 @@ app.all("/", (req, res) =>
 app.use("/message", modules.messageController);
 app.use("/user", modules.userController);
 app.use("/auth", modules.authController);
+app.use("/request", modules.requestController);
+app.use("/conversation", modules.conversationController);
 
 app.all("{/*dummy}", (req, res, next) => {
   res.status(404).json({

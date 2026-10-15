@@ -4,7 +4,7 @@ import * as middleware from "../../middleware/index.js";
 import * as ms from "./message.service.js";
 import * as validators from "./message.validation.js";
 
-const router = Router();
+const router = Router({ caseSensitive: true, strict: true });
 
 const messageFolderName = "messages";
 
@@ -19,12 +19,19 @@ router.post(
   middleware.localMulterMiddleware({
     isRequired: false,
     customPath: messageFolderName,
-    multerMiddleware: localMulter.localFileUpload().any("attachments", 3),
-    validation: localMulter.fileValidation.image,
+    multerMiddleware: localMulter.memoryFileUpload().any("attachments", 3),
+    validation: [
+      ...localMulter.fileValidation.image,
+      ...localMulter.fileValidation.files,
+    ],
   }),
   middleware.validation(validators.createMessage),
   async (req, res, next) => {
-    const data = await ms.createMessage(req.body, req.files, req.user);
+    const data = await ms.createMessage(
+      req.validate.body,
+      req.validate.files,
+      req.user,
+    );
     return response.SuccessResponseHandling({
       res,
       message: "success.messageCreated",

@@ -7,11 +7,7 @@ export const createMessage = (lang) => {
     .object({
       body: z.strictObject({
         receiverId: generalValidationFields(lang).id,
-        content: z
-          .string()
-          .min(2, { error: translate(lang, "validation.content.min") })
-          .max(50000, { error: translate(lang, "validation.content.max") })
-          .optional(),
+        content: generalValidationFields(lang).messageContent.optional(),
       }),
       files: z.array(generalValidationFields(lang).file).max(3).optional(),
     })

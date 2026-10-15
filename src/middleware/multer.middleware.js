@@ -15,8 +15,8 @@ export const localMulterMiddleware = ({
         if (
           isRequired &&
           !req.file &&
-          !(Array.isArray(req.files) && req.files.length) &&
-          !(typeof req.files == "object" && Object.keys(req.files).length)
+          !(Array.isArray(req.files) && req.files.length > 0) &&
+          !(typeof req.files == "object" && Object.keys(req.files).length > 0)
         ) {
           throw exceptions.BadRequestException({
             message: "error.fileRequired",
