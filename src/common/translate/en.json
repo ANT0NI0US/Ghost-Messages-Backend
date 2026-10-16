@@ -157,5 +157,14 @@
     "requestCreated": "Identity request sent successfully",
     "conversationMessagesRetrieved": "Conversation messages retrieved successfully",
     "conversationMessageSent": "Message sent successfully"
+  },
+  "emailTemplate": {
+    "confirmEmailTitle": "Email Confirmation",
+    "twoStepVerificationTitle": "Two-Step Verification",
+    "forgotPasswordTitle": "Forgot Password",
+    "yourOtp": "Your OTP",
+    "expiresIn": "This code will expire in {minutes} minutes.",
+    "disclaimer": "If you didn't request this action, you can safely ignore this email.",
+    "stayInTouch": "Stay in touch"
   }
 }

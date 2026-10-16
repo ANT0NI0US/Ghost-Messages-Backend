@@ -78,34 +78,6 @@ export const paginate = async ({
   return { pages, docsCount, currentPage: page, limit, docs };
 };
 
-// export const paginate = async ({
-//   filter = {},
-//   options = {},
-//   select,
-//   page = "all",
-//   size = 5,
-//   model,
-// } = {}) => {
-//   let docsCount = undefined;
-//   let pages = undefined;
-//   if (page !== "all") {
-//     page = Math.floor(page < 1 ? 1 : page);
-//     options.limit = Math.floor(size < 1 || !size ? 5 : size);
-//     options.skip = (page - 1) * options.limit;
-
-//     docsCount = await model.countDocuments(filter);
-//     pages = Math.ceil(docsCount / options.limit);
-//   }
-//   const result = await find({ model, filter, select, options });
-//   return {
-//     docsCount,
-//     limit: options.limit,
-//     pages,
-//     currentPage: page !== "all" ? page : undefined,
-//     result,
-//   };
-// };
-
 export const create = async ({ data, options, model }) => {
   return (await model.create(data, options)) || [];
 };

@@ -62,7 +62,6 @@ const userSchema = new mongoose.Schema(
     },
     changeCredentialsTime: Date,
     twoStepVerification: Boolean,
-    deletedAt: Date,
   },
   {
     timestamps: true,

@@ -1,23 +1,9 @@
 import { ipKeyGenerator, rateLimit } from "express-rate-limit";
-// import axios from "axios";
 import geoip from "geoip-lite";
+import configService from "../../../config/config.service.js";
 import { client } from "../../DB/redis.connection.js";
 import { response } from "./index.js";
-import configService from "../../../config/config.service.js";
 
-/*
-* using ipapi
-async function fromWhere(ip) {
-  try {
-    const response = await axios.get(`https://ipapi.co/${ip}/json`);
-    return response.data;
-  } catch (error) {
-    console.log(`fail to detect request origin`);
-  }
-}
-*/
-
-// using geoip
 async function fromWhere(ip) {
   try {
     return geoip.lookup(ip);
@@ -40,8 +26,6 @@ export const generateRateLimiter = ({
     handler: function (req, res, next) {
       return response.SuccessResponseHandling({ res, status, message });
     },
-    // message: "Too many request",
-    // statusCode: 429,
     legacyHeaders: configService.NODE_ENV == "development" ? true : false,
     skipSuccessfulRequests,
     skipFailedRequests,
@@ -52,12 +36,10 @@ export const generateRateLimiter = ({
     },
     keyGenerator: function (req) {
       const ip = ipKeyGenerator(req.ip, 52);
-      // this is stored in req.ratelimit.key
       return `${req.ip}::${req.path}`;
     },
     store: {
       async incr(key, cb) {
-        // called by keyGenerator
         try {
           const count = await client.incr(key);
           let secondsRemaining = ttl * 60;
@@ -73,7 +55,6 @@ export const generateRateLimiter = ({
         }
       },
       async decrement(key) {
-        // called by: (skipFailedRequests: true , skipSuccessfulRequests: true)
         if (await client.exists(key)) {
           await client.decr(key);
         }

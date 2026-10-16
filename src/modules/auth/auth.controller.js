@@ -22,7 +22,7 @@ router.post(
   "/signup",
   middleware.validation(validators.signup),
   async (req, res) => {
-    await as.signup(req.validate.body);
+    await as.signup(req.validate.body, req.lang);
 
     return response.SuccessResponseHandling({
       res,
@@ -52,7 +52,7 @@ router.patch(
   "/resend-confirm-email",
   middleware.validation(validators.reSendConfirmEmail),
   async (req, res) => {
-    await as.reSendConfirmEmail(req.validate.body);
+    await as.reSendConfirmEmail(req.validate.body, req.lang);
 
     return response.SuccessResponseHandling({
       res,
@@ -64,7 +64,7 @@ router.patch(
 const loginLimiterMiddleware = limiter.generateRateLimiter({
   limit: 5,
   ttl: 5,
-  skipFailedRequests: true,
+  skipSuccessfulRequests: true,
 });
 
 router.post(
@@ -73,7 +73,7 @@ router.post(
   middleware.validation(validators.login),
   async (req, res) => {
     const issuer = `${req.protocol}://${req.host}`;
-    const tokens = await as.login(req.validate.body, issuer);
+    const tokens = await as.login(req.validate.body, issuer, req.lang);
     // delete the key after i enter a correct email and password
     await services.del({ key: req.rateLimit.key });
 
@@ -106,7 +106,7 @@ router.post(
   "/enable-two-step-verification",
   middleware.authentication(),
   async (req, res) => {
-    await as.enableTwoStepVerification(req.user);
+    await as.enableTwoStepVerification(req.user, req.lang);
 
     return response.SuccessResponseHandling({
       res,
@@ -134,7 +134,7 @@ router.post(
   "/request-forgot-password-code",
   middleware.validation(validators.requestForgetPasswordCode),
   async (req, res) => {
-    await as.requestForgetPasswordCode(req.validate.body);
+    await as.requestForgetPasswordCode(req.validate.body, req.lang);
 
     return response.SuccessResponseHandling({
       res,

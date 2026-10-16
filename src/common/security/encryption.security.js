@@ -1,8 +1,6 @@
 import crypto from "node:crypto";
 import configService from "../../../config/config.service.js";
 
-// console.log(crypto.randomBytes(16).toString("hex"));
-
 export const encrypt = async (plainText) => {
   const iv = crypto.randomBytes(configService.IV_LENGTH);
   const cipher = crypto.createCipheriv(

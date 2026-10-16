@@ -42,13 +42,13 @@ export async function sendEmail({
     }
 
     const info = await transporter.sendMail({
-      from: `"${configService.APPLICATION_NAME}" <${configService.APP_EMAIL}>`, // sender address
-      to, // list of recipients
+      from: `"${configService.APPLICATION_NAME}" <${configService.APP_EMAIL}>`,
+      to,
       cc,
       bcc,
-      subject, // subject line
-      text, // plain text body
-      html, // HTML body
+      subject,
+      text,
+      html,
       attachments,
     });
 

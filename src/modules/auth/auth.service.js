@@ -71,8 +71,8 @@ export const signupLoginWithGmail = async ({ idToken }, issuer) => {
 
 const sendEmailOtp = async ({
   email,
+  lang,
   subject = enums.EmailSubjectEnum.CONFIRM_EMAIL,
-  title = "Confirm Email",
   maxTrials = configService.MAX_OTP_TRIALS,
   otpExpiresTime = configService.OTP_EXPIRES_TIME,
   blockOtpTime = configService.BLOCK_OTP_TIME,
@@ -118,11 +118,11 @@ const sendEmailOtp = async ({
   events.emailEvent.emit(enums.EventsEnum.SEND_EMAIL, {
     recipient: { to: email },
     subject,
-    data: { code: otp, title },
+    data: { code: otp, lang, expiresIn: Math.ceil(otpExpiresTime / 60) },
   });
 };
 
-export const signup = async (inputs) => {
+export const signup = async (inputs, lang) => {
   const { email, phone, password } = inputs;
 
   const existingEmail = await queries.findOne({
@@ -145,7 +145,7 @@ export const signup = async (inputs) => {
 
   await sendEmailOtp({
     email,
-    title: "Confirm Email",
+    lang,
   });
 
   return;
@@ -196,7 +196,7 @@ export const confirmEmail = async ({ email, otp }, issuer) => {
   return { access_token, refresh_token };
 };
 
-export const reSendConfirmEmail = async ({ email }) => {
+export const reSendConfirmEmail = async ({ email }, lang) => {
   const account = await queries.findOne({
     model: models.UserModel,
     filter: {
@@ -212,12 +212,12 @@ export const reSendConfirmEmail = async ({ email }) => {
 
   await sendEmailOtp({
     email,
-    title: "Confirm Email",
+    lang,
   });
 };
 
 // FORGOT PASSWORD
-export const requestForgetPasswordCode = async ({ email }) => {
+export const requestForgetPasswordCode = async ({ email }, lang) => {
   const account = await queries.findOne({
     model: models.UserModel,
     filter: {
@@ -233,7 +233,7 @@ export const requestForgetPasswordCode = async ({ email }) => {
 
   await sendEmailOtp({
     email,
-    title: "Forgot password",
+    lang,
     subject: enums.EmailSubjectEnum.FORGOT_PASSWORD,
   });
 };
@@ -297,7 +297,7 @@ export const resetPassword = async ({ email, otp, password }) => {
   return;
 };
 
-export const login = async ({ email, password }, issuer) => {
+export const login = async ({ email, password }, issuer, lang) => {
   // Get the account that has the same email and signup with system and the confirmationEmail is true.
   const account = await queries.findOne({
     model: models.UserModel,
@@ -317,46 +317,19 @@ export const login = async ({ email, password }, issuer) => {
   // Compare between the password that user enter and the actual user password.
   const match = await security.compare(password, account.password);
 
-  const LoginTrialsKey = `User::${email}::Login_Trials`;
-
   if (!match) {
-    const currentTrials =
-      (await services.get({
-        key: LoginTrialsKey,
-      })) ?? 0;
-
-    if (currentTrials >= configService.MAX_INCORRECT_PASSWORD_ATTEMPTS) {
-      throw exceptions.TooManyRequestException({
-        message: "error.loginLimitReached",
-      });
-    }
-
-    const finalTrials = await services.incrBy({
-      key: LoginTrialsKey,
-    });
-
-    if (finalTrials == configService.MAX_INCORRECT_PASSWORD_ATTEMPTS) {
-      await services.expire({
-        key: LoginTrialsKey,
-        ttl: configService.BLOCK_OTP_TIME,
-      });
-    }
     throw exceptions.ForbiddenException({
       message: "error.invalidCredentials",
     });
   }
-
-  await services.del({
-    key: LoginTrialsKey,
-  });
 
   account.phone = await security.decrypt(account.phone);
 
   if (account.twoStepVerification) {
     await sendEmailOtp({
       email,
+      lang,
       subject: enums.EmailSubjectEnum.TWO_STEP_VERIFICATION,
-      title: "Two Step Verification",
     });
 
     return;
@@ -413,11 +386,11 @@ export const loginConfirmation = async ({ email, otp }, issuer) => {
   return { access_token, refresh_token };
 };
 
-export const enableTwoStepVerification = async ({ email }) => {
+export const enableTwoStepVerification = async ({ email }, lang) => {
   await sendEmailOtp({
     email: email,
+    lang,
     subject: enums.EmailSubjectEnum.TWO_STEP_VERIFICATION,
-    title: "Two Step Verification",
   });
 };
 

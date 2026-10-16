@@ -157,5 +157,14 @@
     "requestCreated": "تم إرسال طلب كشف الهوية بنجاح",
     "conversationMessagesRetrieved": "تم جلب رسائل المحادثة بنجاح",
     "conversationMessageSent": "تم إرسال الرسالة بنجاح"
+  },
+  "emailTemplate": {
+    "confirmEmailTitle": "تأكيد البريد الإلكتروني",
+    "twoStepVerificationTitle": "التحقق بخطوتين",
+    "forgotPasswordTitle": "نسيت كلمة المرور",
+    "yourOtp": "رمز التحقق الخاص بك",
+    "expiresIn": "سينتهي صلاحية هذا الرمز خلال {minutes} دقيقة.",
+    "disclaimer": "إذا لم تطلب هذا الإجراء، يمكنك تجاهل هذا البريد الإلكتروني بأمان.",
+    "stayInTouch": "ابقَ على تواصل"
   }
 }

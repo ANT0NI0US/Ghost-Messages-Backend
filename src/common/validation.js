@@ -1,15 +1,13 @@
-import { z } from "zod";
-import { enums, translate } from "../common/index.js";
 import { Types } from "mongoose";
+import { z } from "zod";
 import configService from "../../config/config.service.js";
+import { enums, translate } from "../common/index.js";
 
 const EMAIL_REGEX =
   /^(?=.*[a-zA-Z]{5,25})(?=.*\d{0,5}).{1,30}@(gmail|yahoo|icloud)(\.com|\.net){1,2}$/;
 const PASSWORD_REGEX =
   /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*\s{0,})(?=.*[!@#$%^&*()_+\-=|";:<>?]).+$/;
 
-// const EMAIL_REGEX = /^\w{1,100}@(gmail|yahoo|icloud)(\.com|\.net){1,2}$/;
-// const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*\W).+$/;
 const OTP_REGEX = /^\d{6}$/;
 
 const checkEquality = ({ original, copy, data, ctx, lang, messageKey }) => {

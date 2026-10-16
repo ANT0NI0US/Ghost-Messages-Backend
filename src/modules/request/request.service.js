@@ -1,22 +1,6 @@
 import { enums, exceptions } from "../../common/index.js";
 import { models, queries } from "../../DB/index.js";
 
-/*
-* message
-hwaida => sender
-mickey => receiver (aly m4 3arf)
----------------------
-* create
-requesterId => receiver (mickey)
-targetUserId => sender (hwaida)
----------------------
-* get
-hn3ml get mn al sender aly hwa hwaida (targetUserId)
----------------------
-* action
-hta5od action mn al sender aly hwa hwaida (targetUserId)
-*/
-
 export const getAllRequests = async ({ type, page, limit } = {}, user) => {
   let filter = {};
   switch (type) {

@@ -121,11 +121,3 @@ export const logout = (lang) => {
     }),
   });
 };
-
-// export const rotateToken = (lang) => {
-//   return z.object({
-//     headers: z.object({
-//       authorization: generalValidationFields(lang).jwt,
-//     }),
-//   });
-// };
