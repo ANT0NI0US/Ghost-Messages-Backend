@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { enums, response } from "../../common/index.js";
+import { enums, limiter, response, services } from "../../common/index.js";
 import * as middleware from "../../middleware/index.js";
 import * as as from "./auth.service.js";
 import * as validators from "./auth.validation.js";
@@ -61,12 +61,21 @@ router.patch(
   },
 );
 
+const loginLimiterMiddleware = limiter.generateRateLimiter({
+  limit: 5,
+  ttl: 5,
+  skipFailedRequests: true,
+});
+
 router.post(
   "/login",
+  loginLimiterMiddleware,
   middleware.validation(validators.login),
   async (req, res) => {
     const issuer = `${req.protocol}://${req.host}`;
     const tokens = await as.login(req.validate.body, issuer);
+    // delete the key after i enter a correct email and password
+    await services.del({ key: req.rateLimit.key });
 
     return response.SuccessResponseHandling({
       res,

@@ -92,6 +92,7 @@
   "error": {
     "server": "Something went wrong, server error",
     "routeNotFound": "Invalid app routing",
+    "tooManyRequests": "Too many requests, please try again later",
     "invalidId": "Invalid id format",
     "duplicate": {
       "email": "This email already exists",

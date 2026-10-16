@@ -1,6 +1,6 @@
 import cors from "cors";
 import express from "express";
-import { translate } from "./common/index.js";
+import { limiter, translate } from "./common/index.js";
 import { BootstrapDB } from "./DB/connection.db.js";
 import * as middleware from "./middleware/index.js";
 import * as modules from "./modules/index.js";
@@ -24,7 +24,17 @@ await BootstrapDB(app);
 //   },
 // };
 
-app.use(helmet(), cors(), middleware.language, express.json());
+const limiterMiddleware = limiter.generateRateLimiter();
+
+app.set("trust proxy", true);
+
+app.use(
+  helmet(),
+  cors(),
+  middleware.language,
+  limiterMiddleware,
+  express.json(),
+);
 app.use("/assets", express.static("./assets")); // to i can access the files in the assets folder from the browser.
 
 app.all("/", (req, res) =>
