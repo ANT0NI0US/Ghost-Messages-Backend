@@ -1,23 +1,13 @@
 import { fileTypeFromBuffer } from "file-type";
-import multer from "multer";
 import { randomUUID } from "node:crypto";
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir, readFile, unlink, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import configService from "../../../../config/config.service.js";
-import { exceptions } from "../../../common/index.js";
+import { exceptions } from "../../index.js";
 
 export const fileValidation = {
   image: ["image/jpg", "image/jpeg", "image/png"],
-  files: ["application/json", "application.pdf"],
-};
-
-export const memoryFileUpload = ({ maxFileSize = 5 } = {}) => {
-  const storage = multer.memoryStorage();
-
-  return multer({
-    storage,
-    limits: { fileSize: maxFileSize * 1024 * 1024 },
-  });
+  files: ["application/json", "application/pdf"],
 };
 
 export const processFile = async ({
@@ -25,9 +15,15 @@ export const processFile = async ({
   validation = [],
   file,
 }) => {
+  if (file.path) {
+    file.buffer = await readFile(file.path);
+  }
   const result = await fileTypeFromBuffer(file.buffer);
 
   if (!result || !validation.includes(result.mime)) {
+    if (file.path) {
+      await unlink(file.path);
+    }
     throw exceptions.BadRequestException({
       message: "error.invalidFileFormat",
     });
@@ -40,7 +36,9 @@ export const processFile = async ({
 
   const filePath = resolve(`./${uniqueFilePath}`);
   await writeFile(filePath, file.buffer);
-
+  if (file.path) {
+    await unlink(file.path);
+  }
   file.path = `${configService.WEBSITE_URL}${uniqueFilePath}`;
 
   return file;
@@ -92,5 +90,19 @@ export const multerUpload = async ({
     Object.keys(req.files)?.length > 0
   ) {
     await processFields({ customPath, validation, fields: req.files });
+  }
+};
+
+export const deleteLocalFile = async ({ url }) => {
+  if (!url?.startsWith(configService.WEBSITE_URL)) {
+    return;
+  }
+
+  const relativePath = url.slice(configService.WEBSITE_URL.length);
+
+  try {
+    await unlink(resolve(`./${relativePath}`));
+  } catch (error) {
+    console.error("Error while deleting file:", relativePath, error);
   }
 };

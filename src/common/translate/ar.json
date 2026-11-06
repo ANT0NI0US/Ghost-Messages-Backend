@@ -72,6 +72,9 @@
     "messageType": {
       "invalid": "نوع الرسالة غير صحيح"
     },
+    "accountStatusType": {
+      "invalid": "نوع حالة الحساب غير صالح"
+    },
     "page": {
       "min": "رقم الصفحة يجب ألا يقل عن 1"
     },
@@ -80,6 +83,12 @@
     },
     "file": {
       "invalid": "الملف المرفق غير صحيح"
+    },
+    "status": {
+      "invalid": "قيمة حالة الحساب غير صالحة"
+    },
+    "idToken": {
+      "invalid": "رمز جوجل غير صالح"
     },
     "general": {
       "error": "خطأ في التحقق من البيانات",
@@ -129,7 +138,18 @@
     "anonymousMessageNoSender": "تم إرسال هذه الرسالة بدون تسجيل دخول، فليس لها مرسل معروف",
     "conversationNotFound": "المحادثة غير موجودة",
     "requestAlreadySent": "لقد أرسلت بالفعل طلبًا بخصوص هذه الرسالة",
-    "requestAlreadyHandled": "تم اتخاذ إجراء بخصوص هذا الطلب بالفعل"
+    "requestAlreadyHandled": "تم اتخاذ إجراء بخصوص هذا الطلب بالفعل",
+    "googleAccountCannotHoldPassword": "لا يمكن لحساب جوجل حفظ كلمة المرور",
+    "accountArchived": "هذا الحساب تم ارشفته",
+    "cannotChangeOwnStatus": "لا يمكنك تغيير حالة حسابك الشخصي",
+    "statusAlreadySet": "الحساب بالفعل على هذه الحالة",
+    "cannotDeleteOwnAccount": "لا يمكنك حذف حسابك الشخصي",
+    "archiveBeforeDelete": "يجب أرشفة الحساب أولاً قبل حذفه",
+    "otpAttemptsExceeded": "محاولات خاطئة كثيرة، من فضلك اطلب رمز تحقق جديد",
+    "fileTooLarge": "حجم الملف كبير جدًا",
+    "tooManyFiles": "عدد الملفات أكبر من المسموح",
+    "unexpectedFileField": "اسم حقل الملف غير صحيح",
+    "invalidUpload": "رفع الملف غير صالح"
   },
   "success": {
     "done": "تم بنجاح",
@@ -156,7 +176,10 @@
     "requestActionTaken": "تم تحديث الطلب بنجاح",
     "requestCreated": "تم إرسال طلب كشف الهوية بنجاح",
     "conversationMessagesRetrieved": "تم جلب رسائل المحادثة بنجاح",
-    "conversationMessageSent": "تم إرسال الرسالة بنجاح"
+    "conversationMessageSent": "تم إرسال الرسالة بنجاح",
+    "userStatusUpdated": "تم تحديث حالة المستخدم بنجاح",
+    "userDeleted": "تم حذف المستخدم بنجاح",
+    "profileImageUpdated": "تم تحديث صورة الملف الشخصي بنجاح"
   },
   "emailTemplate": {
     "confirmEmailTitle": "تأكيد البريد الإلكتروني",

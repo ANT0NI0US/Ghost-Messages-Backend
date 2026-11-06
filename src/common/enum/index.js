@@ -6,3 +6,4 @@ export * from "./events.enum.js";
 export * from "./auth.enum.js";
 export * from "./message.enum.js";
 export * from "./request.enum.js";
+export * from "./multer.enum.js";

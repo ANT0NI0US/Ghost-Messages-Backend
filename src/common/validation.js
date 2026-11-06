@@ -64,6 +64,9 @@ export const generalValidationFields = (lang) => ({
       buffer: z.instanceof(Buffer),
       size: z.number(),
       path: z.string(),
+      // only exist with the disk storage
+      destination: z.string().optional(),
+      filename: z.string().optional(),
     },
     { error: translate(lang, "validation.file.invalid") },
   ),

@@ -1,6 +1,14 @@
-import { exceptions, localMulter } from "../common/index.js";
+import multer from "multer";
+import { exceptions, fileUpload } from "../common/index.js";
 
-export const localMulterMiddleware = ({
+// multer error code → our translation key
+const multerErrorKeys = {
+  LIMIT_FILE_SIZE: "error.fileTooLarge", // from maxFileSize.
+  LIMIT_FILE_COUNT: "error.tooManyFiles", // send files more than that we set to it.
+  LIMIT_UNEXPECTED_FILE: "error.unexpectedFileField", // add the files to an incorrect field name.
+};
+
+export const fileUploadMiddleware = ({
   isRequired = true,
   customPath = "general",
   multerMiddleware,
@@ -10,7 +18,13 @@ export const localMulterMiddleware = ({
     multerMiddleware(req, res, async (error) => {
       try {
         if (error) {
-          throw exceptions.BadRequestException({ message: error.message });
+          const key =
+            error instanceof multer.MulterError
+              ? multerErrorKeys[error.code]
+              : undefined;
+          throw exceptions.BadRequestException({
+            message: key ?? "error.invalidUpload",
+          });
         }
         if (
           isRequired &&
@@ -22,7 +36,7 @@ export const localMulterMiddleware = ({
             message: "error.fileRequired",
           });
         }
-        await localMulter.multerUpload({ req, customPath, validation });
+        await fileUpload.multerUpload({ req, customPath, validation });
         next();
       } catch (error) {
         next(error);

@@ -50,10 +50,16 @@ export const INSTAGRAM = process.env.INSTAGRAM;
 export const OTP_EXPIRES_TIME = parseInt(process.env.OTP_EXPIRES_TIME ?? "120");
 export const BLOCK_OTP_TIME = parseInt(process.env.BLOCK_OTP_TIME ?? "300");
 export const MAX_OTP_TRIALS = parseInt(process.env.MAX_OTP_TRIALS ?? "3");
+export const MAX_OTP_ATTEMPTS = parseInt(process.env.MAX_OTP_ATTEMPTS ?? "5");
 
 // PAGINATION
 export const PAGINATION_LIMIT = parseInt(process.env.PAGINATION_LIMIT ?? "5");
 export const PAGE = parseInt(process.env.PAGE ?? "1");
+
+// CACHING
+export const USER_PROFILE_CACHE_TTL = parseInt(
+  process.env.USER_PROFILE_CACHE_TTL ?? "86400",
+);
 
 export default {
   NODE_ENV,
@@ -79,6 +85,8 @@ export default {
   OTP_EXPIRES_TIME,
   BLOCK_OTP_TIME,
   MAX_OTP_TRIALS,
+  MAX_OTP_ATTEMPTS,
   PAGINATION_LIMIT,
   PAGE,
+  USER_PROFILE_CACHE_TTL,
 };

@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { enums, response, localMulter } from "../../common/index.js";
+import { enums, sResponse, fileUpload } from "../../common/index.js";
 import * as middleware from "../../middleware/index.js";
 import * as us from "./user.service.js";
 import * as validators from "./user.validation.js";
@@ -8,7 +8,7 @@ const router = Router({ caseSensitive: true, strict: true });
 
 router.get("/profile", middleware.authentication(), async (req, res) => {
   const user = await us.profile(req.user);
-  return response.SuccessResponseHandling({
+  return sResponse.SuccessResponseHandling({
     res,
     message: "success.userRetrieved",
     data: user,
@@ -19,10 +19,10 @@ router.get(
   "/all",
   middleware.authentication(),
   middleware.authorization(enums.RoleEnum.ADMIN),
-  middleware.validation(validators.GetAllUsers),
+  middleware.validation(validators.getAllUsers),
   async (req, res) => {
-    const users = await us.allUsers(req.user, req.validate.query);
-    return response.SuccessResponseHandling({
+    const users = await us.allUsers(req.validate.query);
+    return sResponse.SuccessResponseHandling({
       res,
       message: "success.usersRetrieved",
       data: users,
@@ -36,7 +36,7 @@ router.patch(
   middleware.validation(validators.update),
   async (req, res) => {
     const updatedUser = await us.updateUser(req.user, req.validate.body);
-    return response.SuccessResponseHandling({
+    return sResponse.SuccessResponseHandling({
       res,
       message: "success.userUpdated",
       data: updatedUser,
@@ -48,8 +48,8 @@ router.get(
   "/:userId/share-profile",
   middleware.validation(validators.shareProfile),
   async (req, res) => {
-    const user = await us.shareProfile(req.params);
-    return response.SuccessResponseHandling({
+    const user = await us.shareProfile(req.validate.params);
+    return sResponse.SuccessResponseHandling({
       res,
       message: "success.userRetrieved",
       data: user,
@@ -57,22 +57,55 @@ router.get(
   },
 );
 
-router.post(
+router.patch(
   "/profile-image",
   middleware.authentication(),
-  middleware.localMulterMiddleware({
+  middleware.fileUploadMiddleware({
     isRequired: true,
     customPath: "User",
-    multerMiddleware: localMulter.memoryFileUpload().single("attachment"),
-    validation: localMulter.fileValidation.image,
+    multerMiddleware: fileUpload.createUploader().single("attachment"),
+    validation: fileUpload.fileValidation.image,
   }),
   middleware.validation(validators.profileImage),
   async (req, res) => {
-    const data = await us.profileImage(req.user, req.validate.file);
-    return response.SuccessResponseHandling({
+    const image = await us.profileImage(req.user, req.validate.file);
+    return sResponse.SuccessResponseHandling({
       res,
-      message: "success.userRetrieved",
+      message: "success.profileImageUpdated",
+      data: image,
+    });
+  },
+);
+
+router.patch(
+  "/:userId/status",
+  middleware.authentication(),
+  middleware.authorization(enums.RoleEnum.ADMIN),
+  middleware.validation(validators.toggleAccountStatus),
+  async (req, res) => {
+    const data = await us.updateStatus(
+      req.user,
+      req.validate.params,
+      req.validate.body,
+    );
+    return sResponse.SuccessResponseHandling({
+      res,
+      message: "success.userStatusUpdated",
       data,
+    });
+  },
+);
+
+router.delete(
+  "/:userId",
+  middleware.authentication(),
+  middleware.authorization(enums.RoleEnum.ADMIN),
+  middleware.validation(validators.deleteUser),
+  async (req, res) => {
+    await us.deleteUser(req.user, req.validate.params);
+    return sResponse.SuccessResponseHandling({
+      res,
+      message: "success.userDeleted",
     });
   },
 );

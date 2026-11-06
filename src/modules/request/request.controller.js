@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { response } from "../../common/index.js";
+import { sResponse } from "../../common/index.js";
 import * as middleware from "../../middleware/index.js";
 import * as rs from "./request.service.js";
 import * as validators from "./request.validation.js";
@@ -12,7 +12,7 @@ router.get(
   middleware.validation(validators.getAllRequests),
   async (req, res, next) => {
     const requests = await rs.getAllRequests(req.validate.query, req.user);
-    return response.SuccessResponseHandling({
+    return sResponse.SuccessResponseHandling({
       res,
       message: "success.requestsRetrieved",
       data: requests,
@@ -26,7 +26,7 @@ router.post(
   middleware.validation(validators.takeAnActionToRequest),
   async (req, res, next) => {
     const request = await rs.takeAnActionToRequest(req.validate.body, req.user);
-    return response.SuccessResponseHandling({
+    return sResponse.SuccessResponseHandling({
       res,
       message: "success.requestActionTaken",
       data: request,
@@ -40,7 +40,7 @@ router.post(
   middleware.validation(validators.createRequest),
   async (req, res, next) => {
     const request = await rs.createRequest(req.validate.body, req.user);
-    return response.SuccessResponseHandling({
+    return sResponse.SuccessResponseHandling({
       res,
       message: "success.requestCreated",
       data: request,

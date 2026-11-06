@@ -1,2 +1,3 @@
-export * from "./send.email.js";
+export * from "./email.service.js";
 export * from "./otp.js";
+export * from "./templates.js";

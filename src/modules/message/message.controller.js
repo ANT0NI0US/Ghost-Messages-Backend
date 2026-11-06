@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { localMulter, response } from "../../common/index.js";
+import { fileUpload, sResponse } from "../../common/index.js";
 import * as middleware from "../../middleware/index.js";
 import * as ms from "./message.service.js";
 import * as validators from "./message.validation.js";
@@ -16,13 +16,13 @@ router.post(
     }
     next();
   },
-  middleware.localMulterMiddleware({
+  middleware.fileUploadMiddleware({
     isRequired: false,
     customPath: messageFolderName,
-    multerMiddleware: localMulter.memoryFileUpload().any("attachments", 3),
+    multerMiddleware: fileUpload.createUploader().array("attachments", 3),
     validation: [
-      ...localMulter.fileValidation.image,
-      ...localMulter.fileValidation.files,
+      ...fileUpload.fileValidation.image,
+      ...fileUpload.fileValidation.files,
     ],
   }),
   middleware.validation(validators.createMessage),
@@ -32,7 +32,7 @@ router.post(
       req.validate.files,
       req.user,
     );
-    return response.SuccessResponseHandling({
+    return sResponse.SuccessResponseHandling({
       res,
       message: "success.messageCreated",
       status: 201,
@@ -47,7 +47,7 @@ router.get(
   middleware.validation(validators.getAllMessages),
   async (req, res, next) => {
     const messages = await ms.getAllMessages(req.validate.query, req.user);
-    return response.SuccessResponseHandling({
+    return sResponse.SuccessResponseHandling({
       res,
       message: "success.messagesRetrieved",
       data: messages,
@@ -61,7 +61,7 @@ router.get(
   middleware.validation(validators.getMessageById),
   async (req, res, next) => {
     const message = await ms.getMessageById(req.validate.params, req.user);
-    return response.SuccessResponseHandling({
+    return sResponse.SuccessResponseHandling({
       res,
       message: "success.messageRetrieved",
       data: message,
@@ -75,7 +75,7 @@ router.delete(
   middleware.validation(validators.deleteMessage),
   async (req, res, next) => {
     await ms.deleteMessage(req.validate.params, req.user);
-    return response.SuccessResponseHandling({
+    return sResponse.SuccessResponseHandling({
       res,
       message: "success.messageDeleted",
     });

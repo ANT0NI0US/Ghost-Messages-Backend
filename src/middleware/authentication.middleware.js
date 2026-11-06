@@ -29,23 +29,39 @@ export const authentication = ({
         await bearerAuth({ req, tokenType });
         break;
 
-      case enums.AuthEnum.BASIC:
+      case enums.AuthEnum.BASIC: {
         if (!allowBasic) {
           throw exceptions.BadRequestException({
             message: "error.basicAuthNotAllowed",
           });
         }
-        const [email, password] = Buffer.from(credential, "base64")
-          .toString()
-          ?.split(":");
-        req.user = await security.basicAuth({ email, password });
+        // "Basic" without credentials
+        if (!credential) {
+          throw exceptions.UnauthorizedException({
+            message: "error.unauthorized",
+          });
+        }
+
+        const decoded = Buffer.from(credential, "base64").toString();
+        // split on the first ":" only, the password itself may contain ":"
+        const separator = decoded.indexOf(":");
+        if (separator == -1) {
+          throw exceptions.UnauthorizedException({
+            message: "error.invalidCredentials",
+          });
+        }
+
+        req.user = await security.basicAuth({
+          email: decoded.slice(0, separator),
+          password: decoded.slice(separator + 1),
+        });
         break;
+      }
 
       default:
         throw exceptions.BadRequestException({
           message: "error.invalidAuthKey",
         });
-        break;
     }
 
     next();

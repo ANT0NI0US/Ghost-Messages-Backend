@@ -62,20 +62,31 @@ export const paginate = async ({
     filter,
     model,
   });
-  const pages = Math.ceil(docsCount / limit);
+  const totalPages = Math.ceil(docsCount / limit);
 
   const docs = await find({
     model,
     filter,
     options: {
-      ...options,
       skip,
       limit,
+      ...options,
     },
     select,
   });
 
-  return { pages, docsCount, currentPage: page, limit, docs };
+  const hasNextPage = page < totalPages;
+  const hasPreviousPage = page > 1;
+
+  return {
+    totalPages,
+    docsCount,
+    currentPage: page,
+    limit,
+    docs,
+    hasNextPage,
+    hasPreviousPage,
+  };
 };
 
 export const create = async ({ data, options, model }) => {
@@ -94,15 +105,15 @@ export const updateOne = async ({ filter, update, options, model } = {}) => {
       },
     });
     return await model.updateOne(filter || {}, update, {
-      ...options,
       runValidators: true,
       updatePipeline: true,
+      ...options,
     });
   }
 
   return await model.updateOne(
     filter || {},
-    { ...update, $inc: { __v: 1 } },
+    { ...update, $inc: { ...update?.$inc, __v: 1 } },
     { runValidators: true, ...options },
   );
 };
@@ -122,33 +133,26 @@ export const findOneAndUpdate = async ({
     return await model.findOneAndUpdate(filter || {}, update, {
       returnDocument: "after",
       runValidators: true,
-
-      ...options,
       updatePipeline: true,
+      ...options,
     });
   }
   return await model.findOneAndUpdate(
     filter || {},
-    { ...update, $inc: { __v: 1 } },
+    { ...update, $inc: { ...update?.$inc, __v: 1 } },
     {
       returnDocument: "after",
       runValidators: true,
-
       ...options,
     },
   );
 };
 
-export const findByIdAndUpdate = async ({
-  id,
-  update,
-  options = { returnDocument: "after", runValidators: true },
-  model,
-}) => {
+export const findByIdAndUpdate = async ({ id, update, options, model }) => {
   return await model.findByIdAndUpdate(
     id,
-    { ...update, $inc: { __v: 1 } },
-    options,
+    { ...update, $inc: { ...update?.$inc, __v: 1 } },
+    { returnDocument: "after", runValidators: true, ...options },
   );
 };
 
@@ -162,4 +166,8 @@ export const deleteMany = async ({ filter, model }) => {
 
 export const findOneAndDelete = async ({ filter, model } = {}) => {
   return await model.findOneAndDelete(filter || {});
+};
+
+export const findByIdAndDelete = async ({ id, options, model }) => {
+  return await model.findByIdAndDelete(id, options);
 };

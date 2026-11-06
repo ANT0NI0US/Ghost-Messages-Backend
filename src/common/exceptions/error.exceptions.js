@@ -7,7 +7,7 @@ export const ErrorResponse = ({
 };
 
 export const BadRequestException = ({
-  message = "BadRequestException",
+  message = "Bad Request Exception",
   issues = undefined,
 } = {}) => {
   return ErrorResponse({ message, status: 400, issues });
@@ -21,28 +21,28 @@ export const TooManyRequestException = ({
 };
 
 export const ConflictException = ({
-  message = "ConflictException",
+  message = "Conflict Exception",
   issues = undefined,
 } = {}) => {
   return ErrorResponse({ message, status: 409, issues });
 };
 
 export const UnauthorizedException = ({
-  message = "UnauthorizedException",
+  message = "Unauthorized Exception",
   issues = undefined,
 } = {}) => {
   return ErrorResponse({ message, status: 401, issues });
 };
 
 export const NotFoundException = ({
-  message = "NotFoundException",
+  message = "Not Found Exception",
   issues = undefined,
 } = {}) => {
   return ErrorResponse({ message, status: 404, issues });
 };
 
 export const ForbiddenException = ({
-  message = "ForbiddenException",
+  message = "Forbidden Exception",
   issues = undefined,
 } = {}) => {
   return ErrorResponse({ message, status: 403, issues });

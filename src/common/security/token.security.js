@@ -126,7 +126,7 @@ export const decodeToken = async ({
     await services.set({
       key: userBaseProfile({ userId: payload.sub }),
       value: user,
-      ttl: 60 * 60 * 24, // 1 day
+      ttl: configService.USER_PROFILE_CACHE_TTL,
     });
   }
 
@@ -187,9 +187,10 @@ CREATE REVOKED TOKEN USING payload
 3- ttl: THE TIME THAT IS REMAINING.
 */
 export const createRevokeToken = async ({ payload }) => {
-  const consumedTime = Math.ceil(Date.now() / 1000 - payload.iat);
+  // const consumedTime = Math.ceil(Date.now() / 1000 - payload.iat);
   const refreshExpiresIn = payload.iat + configService.REFRESH_TOKEN_EXPIRES_IN;
-  const ttl = refreshExpiresIn - consumedTime;
+  // const ttl = refreshExpiresIn - consumedTime;
+  const ttl = refreshExpiresIn - Math.floor(Date.now() / 1000);
   await services.set({
     key: userRevokeToken({ userId: payload.sub, jti: payload.jti }),
     value: payload.jti,
@@ -206,7 +207,9 @@ export const basicAuth = async ({ email, password }) => {
       email,
       provider: enums.ProviderEnum.SYSTEM,
       confirmEmail: { $exists: true },
+      paranoid: false,
     },
+    select: "+password",
   });
 
   // If there is no account invalid credentials.
@@ -222,6 +225,10 @@ export const basicAuth = async ({ email, password }) => {
     throw exceptions.ForbiddenException({
       message: "error.invalidCredentials",
     });
+
+  if (account.status == enums.AccountStatusEnum.ARCHIVE) {
+    throw exceptions.ForbiddenException({ message: "error.accountArchived" });
+  }
 
   return account;
 };

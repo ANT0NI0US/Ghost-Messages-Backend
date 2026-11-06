@@ -2,12 +2,11 @@ import { OAuth2Client } from "google-auth-library";
 import configService from "../../../config/config.service.js";
 import { models, queries } from "../../DB/index.js";
 import {
-  exceptions,
   enums,
+  exceptions,
   security,
-  events,
-  services,
   sendEmail,
+  services,
 } from "../../common/index.js";
 
 const client = new OAuth2Client();
@@ -22,7 +21,7 @@ async function verifyGoogleAccount(idToken) {
 }
 
 export const signupLoginWithGmail = async ({ idToken }, issuer) => {
-  const { name, email, picture, email_verified } =
+  const { email, picture, email_verified, given_name, family_name } =
     await verifyGoogleAccount(idToken);
 
   if (!email_verified) {
@@ -31,12 +30,16 @@ export const signupLoginWithGmail = async ({ idToken }, issuer) => {
 
   const existingEmail = await queries.findOne({
     model: models.UserModel,
-    filter: { email },
+    filter: { email, paranoid: false },
   });
   if (existingEmail) {
     // if the email already exist with any provider not equal google
     if (existingEmail.provider != enums.ProviderEnum.GOOGLE) {
       throw exceptions.ConflictException({ message: "error.invalidProvider" });
+    }
+
+    if (existingEmail.status == enums.AccountStatusEnum.ARCHIVE) {
+      throw exceptions.ForbiddenException({ message: "error.accountArchived" });
     }
     // login with gmail
     const { access_token, refresh_token } =
@@ -51,7 +54,8 @@ export const signupLoginWithGmail = async ({ idToken }, issuer) => {
   const account = await queries.create({
     model: models.UserModel,
     data: {
-      username: name,
+      firstName: given_name ?? email.split("@")[0],
+      lastName: family_name,
       email,
       confirmEmail: new Date(),
       image: picture,
@@ -69,66 +73,17 @@ export const signupLoginWithGmail = async ({ idToken }, issuer) => {
   return { status: 201, access_token, refresh_token };
 };
 
-const sendEmailOtp = async ({
-  email,
-  lang,
-  subject = enums.EmailSubjectEnum.CONFIRM_EMAIL,
-  maxTrials = configService.MAX_OTP_TRIALS,
-  otpExpiresTime = configService.OTP_EXPIRES_TIME,
-  blockOtpTime = configService.BLOCK_OTP_TIME,
-}) => {
-  const existOtpTTL = await services.ttl({
-    key: sendEmail.UserEmailKey({ email, subject }),
-  });
-
-  if (existOtpTTL > 0) {
-    throw exceptions.ConflictException({ message: "error.otpStillValid" });
-  }
-
-  const currentTrials =
-    (await services.get({
-      key: sendEmail.UserOtpTrialsKey({ email, subject }),
-    })) ?? 0;
-
-  if (currentTrials >= maxTrials) {
-    throw exceptions.TooManyRequestException({
-      message: "error.otpLimitReached",
-    });
-  }
-
-  const otp = sendEmail.createOtp();
-
-  await services.set({
-    key: sendEmail.UserEmailKey({ email, subject }),
-    value: await security.hash({ plainText: otp.toString() }),
-    ttl: otpExpiresTime,
-  });
-
-  const finalTrials = await services.incrBy({
-    key: sendEmail.UserOtpTrialsKey({ email, subject }),
-  });
-
-  if (finalTrials == maxTrials) {
-    await services.expire({
-      key: sendEmail.UserOtpTrialsKey({ email, subject }),
-      ttl: blockOtpTime,
-    });
-  }
-
-  events.emailEvent.emit(enums.EventsEnum.SEND_EMAIL, {
-    recipient: { to: email },
-    subject,
-    data: { code: otp, lang, expiresIn: Math.ceil(otpExpiresTime / 60) },
-  });
-};
-
 export const signup = async (inputs, lang) => {
-  const { email, phone, password } = inputs;
+  const { email } = inputs;
 
   const existingEmail = await queries.findOne({
     model: models.UserModel,
-    filter: { email },
+    filter: { email, paranoid: false },
   });
+
+  if (existingEmail?.status == enums.AccountStatusEnum.ARCHIVE) {
+    throw exceptions.ForbiddenException({ message: "error.accountArchived" });
+  }
 
   if (existingEmail) {
     throw exceptions.ConflictException({ message: "error.emailExists" });
@@ -136,14 +91,10 @@ export const signup = async (inputs, lang) => {
 
   const account = await queries.create({
     model: models.UserModel,
-    data: {
-      ...inputs,
-      password: await security.hash({ plainText: password }),
-      phone: await security.encrypt(phone),
-    },
+    data: inputs,
   });
 
-  await sendEmailOtp({
+  await sendEmail.sendEmailOtp({
     email,
     lang,
   });
@@ -165,18 +116,15 @@ export const confirmEmail = async ({ email, otp }, issuer) => {
     throw exceptions.NotFoundException({ message: "error.invalidAccount" });
   }
 
-  const hashOtp = await services.get({
-    key: sendEmail.UserEmailKey({
-      email,
-      subject: enums.EmailSubjectEnum.CONFIRM_EMAIL,
-    }),
+  await sendEmail.checkOTP({
+    email,
+    otp,
+    subject: enums.EmailSubjectEnum.CONFIRM_EMAIL,
   });
 
-  if (!hashOtp || !(await security.compare(otp, hashOtp))) {
-    throw exceptions.BadRequestException({ message: "error.invalidOtp" });
-  }
   account.confirmEmail = new Date();
   await account.save();
+
   await services.del({
     key: await services.keys({
       prefix: sendEmail.UserEmailKey({
@@ -210,7 +158,7 @@ export const reSendConfirmEmail = async ({ email }, lang) => {
     throw exceptions.NotFoundException({ message: "error.invalidAccount" });
   }
 
-  await sendEmailOtp({
+  await sendEmail.sendEmailOtp({
     email,
     lang,
   });
@@ -231,7 +179,7 @@ export const requestForgetPasswordCode = async ({ email }, lang) => {
     throw exceptions.NotFoundException({ message: "error.invalidAccount" });
   }
 
-  await sendEmailOtp({
+  await sendEmail.sendEmailOtp({
     email,
     lang,
     subject: enums.EmailSubjectEnum.FORGOT_PASSWORD,
@@ -252,16 +200,11 @@ export const verifyForgotPasswordCode = async ({ email, otp }) => {
     throw exceptions.NotFoundException({ message: "error.invalidAccount" });
   }
 
-  const hashOtp = await services.get({
-    key: sendEmail.UserEmailKey({
-      email,
-      subject: enums.EmailSubjectEnum.FORGOT_PASSWORD,
-    }),
+  await sendEmail.checkOTP({
+    email,
+    otp,
+    subject: enums.EmailSubjectEnum.FORGOT_PASSWORD,
   });
-
-  if (!hashOtp || !(await security.compare(otp, hashOtp))) {
-    throw exceptions.BadRequestException({ message: "error.invalidOtp" });
-  }
 
   return account;
 };
@@ -269,7 +212,7 @@ export const verifyForgotPasswordCode = async ({ email, otp }) => {
 export const resetPassword = async ({ email, otp, password }) => {
   const account = await verifyForgotPasswordCode({ email, otp });
 
-  account.password = await security.hash({ plainText: password });
+  account.password = password;
   account.changeCredentialsTime = new Date();
 
   await account.save();
@@ -305,7 +248,9 @@ export const login = async ({ email, password }, issuer, lang) => {
       email,
       provider: enums.ProviderEnum.SYSTEM,
       confirmEmail: { $exists: true },
+      paranoid: false,
     },
+    select: "+password",
   });
 
   // If there is no account invalid credentials.
@@ -323,10 +268,12 @@ export const login = async ({ email, password }, issuer, lang) => {
     });
   }
 
-  account.phone = await security.decrypt(account.phone);
+  if (account.status == enums.AccountStatusEnum.ARCHIVE) {
+    throw exceptions.ForbiddenException({ message: "error.accountArchived" });
+  }
 
   if (account.twoStepVerification) {
-    await sendEmailOtp({
+    await sendEmail.sendEmailOtp({
       email,
       lang,
       subject: enums.EmailSubjectEnum.TWO_STEP_VERIFICATION,
@@ -358,22 +305,23 @@ export const loginConfirmation = async ({ email, otp }, issuer) => {
     throw exceptions.NotFoundException({ message: "error.invalidAccount" });
   }
 
-  const hashOtp = await services.get({
-    key: sendEmail.UserEmailKey({
-      email,
-      subject: enums.EmailSubjectEnum.TWO_STEP_VERIFICATION,
-    }),
+  await sendEmail.checkOTP({
+    email,
+    otp,
+    subject: enums.EmailSubjectEnum.TWO_STEP_VERIFICATION,
   });
 
-  if (!hashOtp || !(await security.compare(otp, hashOtp))) {
-    throw exceptions.BadRequestException({ message: "error.invalidOtp" });
-  }
-
   await services.del({
-    key: sendEmail.UserEmailKey({
-      email,
-      subject: enums.EmailSubjectEnum.TWO_STEP_VERIFICATION,
-    }),
+    key: [
+      sendEmail.UserEmailKey({
+        email,
+        subject: enums.EmailSubjectEnum.TWO_STEP_VERIFICATION,
+      }),
+      sendEmail.UserOtpTrialsKey({
+        email,
+        subject: enums.EmailSubjectEnum.TWO_STEP_VERIFICATION,
+      }),
+    ],
   });
 
   const { access_token, refresh_token } = await security.createLoginCredentials(
@@ -387,7 +335,7 @@ export const loginConfirmation = async ({ email, otp }, issuer) => {
 };
 
 export const enableTwoStepVerification = async ({ email }, lang) => {
-  await sendEmailOtp({
+  await sendEmail.sendEmailOtp({
     email: email,
     lang,
     subject: enums.EmailSubjectEnum.TWO_STEP_VERIFICATION,
@@ -395,27 +343,29 @@ export const enableTwoStepVerification = async ({ email }, lang) => {
 };
 
 export const confirmTwoStepVerification = async (user, { otp }) => {
-  const hashOtp = await services.get({
-    key: sendEmail.UserEmailKey({
-      email: user.email,
-      subject: enums.EmailSubjectEnum.TWO_STEP_VERIFICATION,
-    }),
+  await sendEmail.checkOTP({
+    email: user.email,
+    otp,
+    subject: enums.EmailSubjectEnum.TWO_STEP_VERIFICATION,
   });
-
-  if (!hashOtp || !(await security.compare(otp, hashOtp))) {
-    throw exceptions.BadRequestException({ message: "error.invalidOtp" });
-  }
 
   user.twoStepVerification = true;
   // we use validateModifiedOnly: true cause we remove password from back in all cases and we don't want to validate it.
   await user.save({ validateModifiedOnly: true });
 
   await services.del({
-    key: sendEmail.UserEmailKey({
-      email: user.email,
-      subject: enums.EmailSubjectEnum.TWO_STEP_VERIFICATION,
-    }),
+    key: [
+      sendEmail.UserEmailKey({
+        email: user.email,
+        subject: enums.EmailSubjectEnum.TWO_STEP_VERIFICATION,
+      }),
+      sendEmail.UserOtpTrialsKey({
+        email: user.email,
+        subject: enums.EmailSubjectEnum.TWO_STEP_VERIFICATION,
+      }),
+    ],
   });
+
   await services.del({ key: security.userBaseProfile({ userId: user._id }) });
 };
 
@@ -427,6 +377,10 @@ export const rotateToken = async (payload, user, issuer) => {
   if (currentTime < accessExpiresIn) {
     throw exceptions.ConflictException({ message: "error.rotateTooEarly" });
   }
+
+  // revoke the old access + refresh tokens (they share the same jti),
+  // so the old refresh token can't be used again after this rotate.
+  await security.createRevokeToken({ payload });
 
   // expires in refresh token REFRESH_TOKEN_EXPIRES_IN - (Math.ceil(Date.now() / 1000)) - payload.iat depend on the requirements.
   const { access_token, refresh_token } = await security.createLoginCredentials(

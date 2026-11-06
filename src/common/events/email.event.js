@@ -1,7 +1,5 @@
 import { EventEmitter } from "node:events";
-import { enums } from "../index.js";
-import { sendEmail } from "../utils/email/index.js";
-import { emailTemplate } from "../utils/email/templates/confirmEmail.template.js";
+import { enums, sendEmail } from "../index.js";
 
 export const emailEvent = new EventEmitter();
 
@@ -9,10 +7,10 @@ emailEvent.on(
   enums.EventsEnum.SEND_EMAIL,
   async ({ recipient, subject, data }) => {
     try {
-      await sendEmail({
+      await sendEmail.sendEmail({
         ...recipient,
         subject,
-        html: emailTemplate({ subject, data }),
+        html: sendEmail.emailTemplate({ subject, data }),
       });
     } catch (error) {
       console.log(`Failed to send email`, error);

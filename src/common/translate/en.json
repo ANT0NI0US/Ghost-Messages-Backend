@@ -72,6 +72,9 @@
     "messageType": {
       "invalid": "Invalid message type"
     },
+    "accountStatusType": {
+      "invalid": "Invalid account status type"
+    },
     "page": {
       "min": "Page must be at least 1"
     },
@@ -80,6 +83,12 @@
     },
     "file": {
       "invalid": "Invalid attached file"
+    },
+    "status": {
+      "invalid": "Invalid account status value"
+    },
+    "idToken": {
+      "invalid": "Invalid Google token"
     },
     "general": {
       "error": "Validation error",
@@ -129,7 +138,18 @@
     "anonymousMessageNoSender": "This message was sent anonymously and has no identifiable sender",
     "conversationNotFound": "Conversation not found",
     "requestAlreadySent": "You have already sent a request for this message",
-    "requestAlreadyHandled": "An action has already been taken on this request"
+    "requestAlreadyHandled": "An action has already been taken on this request",
+    "googleAccountCannotHoldPassword": "Google account cannot hold password",
+    "accountArchived": "This account has been archived",
+    "cannotChangeOwnStatus": "You can't change the status of your own account",
+    "statusAlreadySet": "The account already has this status",
+    "cannotDeleteOwnAccount": "You can't delete your own account",
+    "archiveBeforeDelete": "The account must be archived before it can be deleted",
+    "otpAttemptsExceeded": "Too many wrong attempts, please request a new verification code",
+    "fileTooLarge": "File is too large",
+    "tooManyFiles": "Too many files",
+    "unexpectedFileField": "Unexpected file field name",
+    "invalidUpload": "Invalid file upload"
   },
   "success": {
     "done": "Done",
@@ -156,7 +176,10 @@
     "requestActionTaken": "Request updated successfully",
     "requestCreated": "Identity request sent successfully",
     "conversationMessagesRetrieved": "Conversation messages retrieved successfully",
-    "conversationMessageSent": "Message sent successfully"
+    "conversationMessageSent": "Message sent successfully",
+    "userStatusUpdated": "User status updated successfully",
+    "userDeleted": "User deleted successfully",
+    "profileImageUpdated": "Profile image updated successfully"
   },
   "emailTemplate": {
     "confirmEmailTitle": "Email Confirmation",

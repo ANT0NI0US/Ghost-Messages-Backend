@@ -1,5 +1,5 @@
-import configService from "../../../../../config/config.service.js";
-import { enums, translate } from "../../../../common/index.js";
+import configService from "../../../../config/config.service.js";
+import { enums, translate } from "../../../common/index.js";
 
 const titleKeyBySubject = {
   [enums.EmailSubjectEnum.CONFIRM_EMAIL]: "emailTemplate.confirmEmailTitle",

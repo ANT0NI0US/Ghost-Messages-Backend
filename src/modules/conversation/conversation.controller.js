@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { localMulter, response } from "../../common/index.js";
+import { fileUpload, sResponse } from "../../common/index.js";
 import * as middleware from "../../middleware/index.js";
 import * as cs from "./conversation.service.js";
 import * as validators from "./conversation.validation.js";
@@ -15,7 +15,7 @@ router.get(
   middleware.conversationAccess({ from: "query" }),
   async (req, res, next) => {
     const messages = await cs.getAllConversations(req.conversation);
-    return response.SuccessResponseHandling({
+    return sResponse.SuccessResponseHandling({
       res,
       message: "success.conversationMessagesRetrieved",
       data: messages,
@@ -26,13 +26,13 @@ router.get(
 router.post(
   "/create",
   middleware.authentication(),
-  middleware.localMulterMiddleware({
+  middleware.fileUploadMiddleware({
     isRequired: false,
     customPath: conversationFolderName,
-    multerMiddleware: localMulter.memoryFileUpload().any("attachments", 3),
+    multerMiddleware: fileUpload.createUploader().array("attachments", 3),
     validation: [
-      ...localMulter.fileValidation.image,
-      ...localMulter.fileValidation.files,
+      ...fileUpload.fileValidation.image,
+      ...fileUpload.fileValidation.files,
     ],
   }),
   middleware.validation(validators.addNewMessageToConversation),
@@ -44,7 +44,7 @@ router.post(
       req.validate.files,
       req.user,
     );
-    return response.SuccessResponseHandling({
+    return sResponse.SuccessResponseHandling({
       res,
       message: "success.conversationMessageSent",
       data: messages,

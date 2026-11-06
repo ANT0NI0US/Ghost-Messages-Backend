@@ -2,7 +2,7 @@ import { ipKeyGenerator, rateLimit } from "express-rate-limit";
 import geoip from "geoip-lite";
 import configService from "../../../config/config.service.js";
 import { client } from "../../DB/redis.connection.js";
-import { response } from "./index.js";
+import { sResponse } from "./index.js";
 
 async function fromWhere(ip) {
   try {
@@ -24,7 +24,7 @@ export const generateRateLimiter = ({
   return rateLimit({
     windowMs: ttl * 60 * 1000,
     handler: function (req, res, next) {
-      return response.SuccessResponseHandling({ res, status, message });
+      return sResponse.SuccessResponseHandling({ res, status, message });
     },
     legacyHeaders: configService.NODE_ENV == "development" ? true : false,
     skipSuccessfulRequests,

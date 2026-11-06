@@ -1,7 +1,6 @@
 import { exceptions, translate } from "../common/index.js";
 
 const keyFor = (issue) => {
-  console.log(issue);
   switch (issue.code) {
     case "invalid_type":
       return issue.input === undefined

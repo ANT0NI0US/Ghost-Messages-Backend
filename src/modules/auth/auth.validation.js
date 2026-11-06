@@ -2,6 +2,17 @@ import { z } from "zod";
 import { generalValidationFields } from "../../common/validation.js";
 import { enums, translate } from "../../common/index.js";
 
+export const signupLoginWithGmail = (lang) => {
+  return z.object({
+    body: z.strictObject({
+      idToken: z.jwt({
+        alg: "RS256",
+        error: translate(lang, "validation.idToken.invalid"),
+      }),
+    }),
+  });
+};
+
 export const loginSchema = (lang) => {
   return z.strictObject({
     email: generalValidationFields(lang).email,
@@ -95,29 +106,31 @@ export const verifyForgotPasswordCode = (lang) => {
 };
 
 export const resetPassword = (lang) => {
-  return z
-    .object({
-      body: confirmEmailSchema(lang).safeExtend({
+  return z.object({
+    body: confirmEmailSchema(lang)
+      .safeExtend({
         password: generalValidationFields(lang).password,
         confirmPassword: generalValidationFields(lang).password,
+      })
+      .superRefine((data, ctx) => {
+        generalValidationFields(lang).checkEquality({
+          original: "password",
+          copy: "confirmPassword",
+          data,
+          ctx,
+          lang,
+          messageKey: "validation.password.mismatch",
+        });
       }),
-    })
-    .superRefine((data, ctx) => {
-      generalValidationFields(lang).checkEquality({
-        original: "password",
-        copy: "confirmPassword",
-        data,
-        ctx,
-        lang,
-        messageKey: "validation.password.mismatch",
-      });
-    });
+  });
 };
 
 export const logout = (lang) => {
   return z.object({
-    body: z.strictObject({
-      action: z.enum(enums.LogoutEnum).default(enums.LogoutEnum.DEVICE),
-    }),
+    body: z
+      .strictObject({
+        action: z.enum(enums.LogoutEnum).default(enums.LogoutEnum.DEVICE),
+      })
+      .prefault({}),
   });
 };

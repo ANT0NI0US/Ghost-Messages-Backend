@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { translate } from "../../common/index.js";
+import { enums, translate } from "../../common/index.js";
 import { generalValidationFields } from "../../common/validation.js";
 
 export const update = (lang) => {
@@ -30,11 +30,19 @@ export const shareProfile = (lang) => {
   });
 };
 
-export const GetAllUsers = (lang) => {
+export const getAllUsers = (lang) => {
   return z.object({
     query: z.strictObject({
       page: generalValidationFields(lang).page,
       limit: generalValidationFields(lang).limit,
+      type: z.coerce
+        .number()
+        .pipe(
+          z.enum(enums.UsersByAccountStatusEnum, {
+            error: translate(lang, "validation.accountStatusType.invalid"),
+          }),
+        )
+        .default(enums.UsersByAccountStatusEnum.ALL),
     }),
   });
 };
@@ -42,5 +50,26 @@ export const GetAllUsers = (lang) => {
 export const profileImage = (lang) => {
   return z.object({
     file: generalValidationFields(lang).file,
+  });
+};
+
+export const toggleAccountStatus = (lang) => {
+  return z.object({
+    params: z.strictObject({
+      userId: generalValidationFields(lang).id,
+    }),
+    body: z.strictObject({
+      status: z.enum(enums.AccountStatusEnum, {
+        error: translate(lang, "validation.status.invalid"),
+      }),
+    }),
+  });
+};
+
+export const deleteUser = (lang) => {
+  return z.object({
+    params: z.strictObject({
+      userId: generalValidationFields(lang).id,
+    }),
   });
 };
