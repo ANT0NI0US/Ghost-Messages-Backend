@@ -1,16 +1,16 @@
 import { ipKeyGenerator, rateLimit } from "express-rate-limit";
-// import geoip from "geoip-lite";
+import geoip from "geoip-lite";
 import configService from "../../../config/config.service.js";
 import { client } from "../../DB/redis.connection.js";
 import { sResponse } from "./index.js";
 
-// async function fromWhere(ip) {
-//   try {
-//     return geoip.lookup(ip);
-//   } catch (error) {
-//     console.log(`fail to detect request origin`);
-//   }
-// }
+async function fromWhere(ip) {
+  try {
+    return geoip.lookup(ip);
+  } catch (error) {
+    console.log(`fail to detect request origin`);
+  }
+}
 
 export const generateRateLimiter = ({
   ttl = 15,
@@ -30,11 +30,10 @@ export const generateRateLimiter = ({
     skipSuccessfulRequests,
     skipFailedRequests,
     standardHeaders,
-    // limit: async function (req) {
-    //   const country = await fromWhere(req.ip);
-    //   return country?.country === "EG" ? limit : 0;
-    // },
-    limit,
+    limit: async function (req) {
+      const country = await fromWhere(req.ip);
+      return country?.country === "EG" ? limit : 0;
+    },
     keyGenerator: function (req) {
       const ip = ipKeyGenerator(req.ip, 52);
       return `${req.ip}::${req.path}`;
