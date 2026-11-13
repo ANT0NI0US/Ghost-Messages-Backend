@@ -12,11 +12,21 @@ import {
 const client = new OAuth2Client();
 
 async function verifyGoogleAccount(idToken) {
-  const ticket = await client.verifyIdToken({
-    idToken,
-    audience: configService.WEB_CLIENT_IDS,
-  });
+  const ticket = await client
+    .verifyIdToken({
+      idToken,
+      audience: configService.WEB_CLIENT_IDS,
+    })
+    .catch(() => {
+      throw exceptions.UnauthorizedException({ message: "error.invalidToken" });
+    });
+
   const payload = ticket.getPayload();
+
+  if (!payload) {
+    throw exceptions.BadRequestException({ message: "error.invalidToken" });
+  }
+
   return payload;
 }
 
@@ -24,7 +34,7 @@ export const signupLoginWithGmail = async ({ idToken }, issuer) => {
   const { email, picture, email_verified, given_name, family_name } =
     await verifyGoogleAccount(idToken);
 
-  if (!email_verified) {
+  if (!email || !email_verified) {
     throw exceptions.BadRequestException({ message: "error.emailNotVerified" });
   }
 
@@ -305,6 +315,12 @@ export const loginConfirmation = async ({ email, otp }, issuer) => {
     throw exceptions.NotFoundException({ message: "error.invalidAccount" });
   }
 
+  if (!account.twoStepVerification) {
+    throw exceptions.ConflictException({
+      message: "error.twoStepVerificationNotEnabled",
+    });
+  }
+
   await sendEmail.checkOTP({
     email,
     otp,
@@ -334,7 +350,16 @@ export const loginConfirmation = async ({ email, otp }, issuer) => {
   return { access_token, refresh_token };
 };
 
-export const enableTwoStepVerification = async ({ email }, lang) => {
+export const enableTwoStepVerification = async (
+  { email, twoStepVerification },
+  lang,
+) => {
+  if (twoStepVerification) {
+    throw exceptions.ConflictException({
+      message: "error.twoStepVerificationAlreadyEnabled",
+    });
+  }
+
   await sendEmail.sendEmailOtp({
     email: email,
     lang,
@@ -343,6 +368,12 @@ export const enableTwoStepVerification = async ({ email }, lang) => {
 };
 
 export const confirmTwoStepVerification = async (user, { otp }) => {
+  if (user.twoStepVerification) {
+    throw exceptions.ConflictException({
+      message: "error.twoStepVerificationAlreadyEnabled",
+    });
+  }
+
   await sendEmail.checkOTP({
     email: user.email,
     otp,

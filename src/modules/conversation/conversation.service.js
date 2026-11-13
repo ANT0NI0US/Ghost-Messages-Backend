@@ -1,7 +1,22 @@
 import { models, queries } from "../../DB/index.js";
 
 export const getAllConversations = async (conversation) => {
-  return conversation.messages;
+  await conversation.populate({
+    path: "messages.senderId",
+    select: "firstName lastName",
+  });
+
+  return conversation.messages.map((message) => ({
+    _id: message._id,
+    content: message.content,
+    attachments: message.attachments,
+    time: message.createdAt,
+    senderId: {
+      _id: message.senderId._id,
+      firstName: message.senderId.firstName,
+      lastName: message.senderId.lastName,
+    },
+  }));
 };
 
 export const addNewMessageToConversation = async (

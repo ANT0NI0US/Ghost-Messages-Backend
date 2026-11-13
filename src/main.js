@@ -35,7 +35,9 @@ app.use("/conversation", modules.conversationController);
 
 app.all("{/*dummy}", (req, res, next) => {
   res.status(404).json({
-    message: translate(req.lang, "error.routeNotFound"),
+    message: translate(req.lang, "error.routeNotFound")
+      .replace("{url}", req.originalUrl)
+      .replace("{method}", req.method),
   });
 });
 

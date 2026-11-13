@@ -76,7 +76,7 @@ export const shareProfile = async ({ userId }) => {
   const user = await queries.findById({
     model: models.UserModel,
     id: userId,
-    select: "firstName lastName image coverImage gender",
+    select: "firstName lastName image coverImages gender",
   });
 
   if (!user) {
@@ -101,6 +101,39 @@ export const profileImage = async (user, file) => {
   }
 
   return user.image;
+};
+
+export const deleteProfileImage = async (user) => {
+  const profileImageUrl = user.image;
+
+  // after: removes the field from the document (same as a user who never uploaded)
+  user.set("image", undefined);
+  await user.save({ validateModifiedOnly: true });
+
+  await services.del({ key: security.userBaseProfile({ userId: user._id }) });
+
+  if (profileImageUrl) {
+    await fileUpload.deleteLocalFile({ url: profileImageUrl });
+  }
+  return;
+};
+
+export const coverImages = async (user, files) => {
+  const oldCoverImages = user.coverImages;
+
+  user.coverImages = files.map((ele) => ele.path);
+  await user.save({ validateModifiedOnly: true });
+  await services.del({ key: security.userBaseProfile({ userId: user._id }) });
+
+  if (oldCoverImages.length) {
+    await Promise.all(
+      oldCoverImages
+        .filter((url) => Boolean(url))
+        .map((url) => fileUpload.deleteLocalFile({ url })),
+    );
+  }
+
+  return user.coverImages;
 };
 
 export const updateStatus = async (admin, { userId }, { status }) => {
@@ -165,7 +198,7 @@ export const deleteUser = async (admin, { userId }) => {
   const targetUser = await queries.findOne({
     model: models.UserModel,
     filter: { _id: objectId.toObjectId({ id: userId }), paranoid: false },
-    select: "role status email image coverImage",
+    select: "role status email image coverImages",
   });
 
   if (!targetUser) {
@@ -211,7 +244,7 @@ export const deleteUser = async (admin, { userId }) => {
   });
 
   await Promise.all(
-    [targetUser.image, ...(targetUser.coverImage ?? [])]
+    [targetUser.image, ...(targetUser.coverImages ?? [])]
       .filter((url) => Boolean(url))
       .map((url) => fileUpload.deleteLocalFile({ url })),
   );

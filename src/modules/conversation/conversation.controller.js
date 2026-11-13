@@ -29,7 +29,7 @@ router.post(
   middleware.fileUploadMiddleware({
     isRequired: false,
     customPath: conversationFolderName,
-    multerMiddleware: fileUpload.createUploader().array("attachments", 3),
+    multerMiddleware: fileUpload.createUploader().array("attachments", 10),
     validation: [
       ...fileUpload.fileValidation.image,
       ...fileUpload.fileValidation.files,

@@ -1,5 +1,8 @@
 node_modules
 
+dist
+.omc
+
 # .env
 .env.production
 .env.development

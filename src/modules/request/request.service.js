@@ -35,6 +35,7 @@ export const getAllRequests = async ({ type, page, limit } = {}, user) => {
     filter,
     options: {
       sort: { createdAt: -1 },
+      populate: [{ path: "requesterId", select: "firstName lastName" }],
     },
     page,
     limit,

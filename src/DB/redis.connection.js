@@ -5,11 +5,13 @@ export const client = createClient({
   url: configService.DB_REDIS_URI,
 });
 
+// without this listener any redis disconnect throws an unhandled 'error' event and kills the whole server
+// with it the client logs the error and reconnects by itself
+client.on("error", (error) => {
+  console.log(`Redis error: ${error.message}`);
+});
+
 export async function connectRedis() {
-  try {
-    await client.connect();
-    console.log(`Redis connection stablish successfully`);
-  } catch (error) {
-    console.log(`Failed to stablish Redis connection`);
-  }
+  await client.connect();
+  console.log(`Redis connection stablish successfully`);
 }

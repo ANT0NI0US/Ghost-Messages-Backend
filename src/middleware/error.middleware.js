@@ -1,6 +1,12 @@
 import configService from "../../config/config.service.js";
 import { translate } from "../common/index.js";
 
+const multerErrorKeys = {
+  LIMIT_FILE_SIZE: "error.fileTooLarge",
+  LIMIT_FILE_COUNT: "error.tooManyFiles",
+  LIMIT_UNEXPECTED_FILE: "error.unexpectedFileField",
+};
+
 export const globalErrorHandling = (error, req, res, next) => {
   let status = error.cause?.status ?? 500;
   let issues = error.cause?.issues;
@@ -21,6 +27,9 @@ export const globalErrorHandling = (error, req, res, next) => {
         e.name === "CastError" ? "validation.general.invalidType" : e.message,
       ),
     }));
+  } else if (error.name === "MulterError") {
+    status = 400;
+    message = multerErrorKeys[error.code] ?? "error.invalidUpload";
     // Duplicate value on a unique field (e.g. email); this error comes from MongoDB itself, not the schema
   } else if (error.code === 11000) {
     status = 409;
@@ -33,6 +42,10 @@ export const globalErrorHandling = (error, req, res, next) => {
   } else if (error.name === "CastError") {
     status = 400;
     message = "error.invalidId";
+    // express.json() could not parse the request body (e.g. a missing quote or bracket)
+  } else if (error.type === "entity.parse.failed") {
+    status = 400;
+    message = "error.invalidJson";
   }
 
   const mood = configService.NODE_ENV == "production";

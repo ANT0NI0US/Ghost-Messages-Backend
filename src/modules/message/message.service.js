@@ -1,5 +1,31 @@
-import { exceptions, enums } from "../../common/index.js";
+import { exceptions, enums, fileUpload } from "../../common/index.js";
 import { models, queries } from "../../DB/index.js";
+
+const populateParty = [
+  { path: "senderId", select: "firstName lastName" },
+  { path: "receiverId", select: "firstName lastName" },
+];
+
+// shape a populated message doc: trim it down to what the client needs,
+// keep senderId null for anonymous messages instead of crashing on it
+const formatMessage = (message) => ({
+  _id: message._id,
+  content: message.content,
+  attachments: message.attachments,
+  time: message.createdAt,
+  senderId: message.senderId
+    ? {
+        _id: message.senderId._id,
+        firstName: message.senderId.firstName,
+        lastName: message.senderId.lastName,
+      }
+    : null,
+  receiverId: {
+    _id: message.receiverId._id,
+    firstName: message.receiverId.firstName,
+    lastName: message.receiverId.lastName,
+  },
+});
 
 export const createMessage = async (
   { content, receiverId } = {},
@@ -45,20 +71,33 @@ export const getAllMessages = async ({ type, page, limit } = {}, user) => {
       break;
   }
 
-  const data = await queries.paginate({
+  const messages = await queries.paginate({
     model: models.MessageModel,
     filter,
     options: {
       sort: { createdAt: -1 },
+      populate: populateParty,
     },
     page,
     limit,
   });
 
-  return data;
+  return {
+    ...messages,
+    docs: messages.docs.map(formatMessage),
+  };
 };
 
 export const deleteMessage = async ({ messageId } = {}, user) => {
+  const existingMessage = await queries.findById({
+    model: models.MessageModel,
+    id: messageId,
+  });
+
+  if (!existingMessage) {
+    throw exceptions.NotFoundException({ message: "error.messageNotFound" });
+  }
+
   const data = await queries.deleteOne({
     model: models.MessageModel,
     filter: {
@@ -66,9 +105,19 @@ export const deleteMessage = async ({ messageId } = {}, user) => {
       receiverId: user._id,
     },
   });
+
   if (!data.deletedCount) {
     throw exceptions.NotFoundException({ message: "error.invalidMessageId" });
   }
+
+  if (existingMessage.attachments.length) {
+    await Promise.all(
+      existingMessage.attachments
+        .filter((url) => Boolean(url))
+        .map((url) => fileUpload.deleteLocalFile({ url })),
+    );
+  }
+
   return;
 };
 
@@ -79,9 +128,14 @@ export const getMessageById = async ({ messageId } = {}, user) => {
       _id: messageId,
       receiverId: user._id,
     },
+    options: {
+      populate: populateParty,
+    },
   });
+
   if (!message) {
     throw exceptions.NotFoundException({ message: "error.messageNotFound" });
   }
-  return message;
+
+  return formatMessage(message);
 };

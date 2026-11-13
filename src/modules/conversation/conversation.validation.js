@@ -17,7 +17,7 @@ export const addNewMessageToConversation = (lang) => {
         messageId: generalValidationFields(lang).id,
         content: generalValidationFields(lang).messageContent.optional(),
       }),
-      files: z.array(generalValidationFields(lang).file).max(3).optional(),
+      files: z.array(generalValidationFields(lang).file).max(10).default([]),
     })
     .superRefine((data, ctx) => {
       if (!data.body.content && !data.files?.length) {

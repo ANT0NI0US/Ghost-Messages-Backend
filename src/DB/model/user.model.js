@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
-import { enums, exceptions, security } from "../../common/index.js";
+import { enums, events, exceptions, security } from "../../common/index.js";
+import configService from "../../../config/config.service.js";
 
 const userSchema = new mongoose.Schema(
   {
@@ -41,7 +42,7 @@ const userSchema = new mongoose.Schema(
     DOB: Date,
     confirmEmail: Date,
     image: String,
-    coverImage: [String],
+    coverImages: [String],
     gender: {
       type: Number,
       enum: {
@@ -67,7 +68,7 @@ const userSchema = new mongoose.Schema(
       default: enums.ProviderEnum.SYSTEM,
     },
     changeCredentialsTime: Date,
-    twoStepVerification: Boolean,
+    twoStepVerification: { type: Boolean, default: false },
     status: {
       type: Number,
       enum: {
@@ -123,6 +124,26 @@ userSchema.pre("save", async function () {
   if (this.isModified("phone")) {
     this.phone = await security.encrypt(this.phone);
   }
+});
+
+// after the first save only (signup / gmail signup) → notify the app email that a new user joined
+userSchema.post("save", function () {
+  if (!this.wasNew) return;
+
+  events.emailEvent.emit(enums.EventsEnum.SEND_EMAIL, {
+    recipient: { to: configService.APP_EMAIL },
+    subject: enums.EmailSubjectEnum.NEW_USER_REGISTERED,
+    data: {
+      lang: enums.LanguageEnum.EN,
+      // only the fields we need, never send the document itself (it holds the hashed password)
+      user: {
+        username: this.username,
+        email: this.email,
+        provider: this.provider,
+        createdAt: this.createdAt,
+      },
+    },
+  });
 });
 
 // return in ["find", "findOne", "countDocuments"] only the users that are not archived unless the query has a property called "paranoid" with a value of false

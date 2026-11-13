@@ -1,7 +1,13 @@
 import jwt from "jsonwebtoken";
 import { randomUUID } from "node:crypto";
 import configService from "../../../config/config.service.js";
-import { enums, exceptions, security, services } from "../../common/index.js";
+import {
+  enums,
+  exceptions,
+  objectId,
+  security,
+  services,
+} from "../../common/index.js";
 import { models, queries } from "../../DB/index.js";
 
 // USER PROFILE THAT IS STORED IN REDIS
@@ -33,7 +39,17 @@ export const verifyToken = async ({
   token = "",
   secret = configService.ACCESS_USER_TOKEN_SIGNATURE,
 } = {}) => {
-  return jwt.verify(token, secret);
+  try {
+    return jwt.verify(token, secret);
+  } catch (error) {
+    // jwt.verify throws its own errors (no cause.status), so they reached the error handler as 500
+    // expired token → the frontend should call rotate-token
+    if (error.name === "TokenExpiredError") {
+      throw exceptions.UnauthorizedException({ message: "error.tokenExpired" });
+    }
+    // wrong signature (forged token / access token sent to rotate-token) or a broken token
+    throw exceptions.UnauthorizedException({ message: "error.invalidToken" });
+  }
 };
 
 // GET THE ACCESS AND REFRESH TOKEN SIGNATURE DEPENDS ON THE USER ROLE (USER - ADMIN)
@@ -114,14 +130,25 @@ export const decodeToken = async ({
     // hydrate() rebuilds a real document from it without hitting the database.
     user = models.UserModel.hydrate(user);
   } else {
-    user = await queries.findById({
+    user = await queries.findOne({
       model: models.UserModel,
-      id: payload.sub,
+      filter: {
+        _id: objectId.toObjectId({ id: payload.sub }),
+        paranoid: false,
+      },
       select: "-password",
     });
+
+    // deleted user → his token is useless
     if (!user) {
-      throw exceptions.NotFoundException({ message: "error.invalidUser" });
+      throw exceptions.UnauthorizedException({ message: "error.invalidToken" });
     }
+
+    // archived user → same message as login / basic auth
+    if (user.status == enums.AccountStatusEnum.ARCHIVE) {
+      throw exceptions.ForbiddenException({ message: "error.accountArchived" });
+    }
+
     // cache the user profile in redis for 1 day.
     await services.set({
       key: userBaseProfile({ userId: payload.sub }),
@@ -140,7 +167,7 @@ export const decodeToken = async ({
     ? new Date(user.changeCredentialsTime).getTime()
     : 0;
 
-  if (changeCredentialsTime > payload.iat * 1000) {
+  if (Math.floor(changeCredentialsTime / 1000) > payload.iat) {
     throw exceptions.UnauthorizedException({ message: "error.tokenRevoked" });
   }
 

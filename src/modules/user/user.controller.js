@@ -78,6 +78,37 @@ router.patch(
 );
 
 router.patch(
+  "/cover-images",
+  middleware.authentication(),
+  middleware.fileUploadMiddleware({
+    customPath: "User/Covers",
+    multerMiddleware: fileUpload.createUploader().array("attachments", 5),
+    validation: fileUpload.fileValidation.image,
+  }),
+  middleware.validation(validators.coverImages),
+  async (req, res) => {
+    const images = await us.coverImages(req.user, req.validate.files);
+    return sResponse.SuccessResponseHandling({
+      res,
+      message: "success.coverImagesUpdated",
+      data: images,
+    });
+  },
+);
+
+router.delete(
+  "/profile-image",
+  middleware.authentication(),
+  async (req, res) => {
+    await us.deleteProfileImage(req.user);
+    return sResponse.SuccessResponseHandling({
+      res,
+      message: "success.profileImageDeleted",
+    });
+  },
+);
+
+router.patch(
   "/:userId/status",
   middleware.authentication(),
   middleware.authorization(enums.RoleEnum.ADMIN),

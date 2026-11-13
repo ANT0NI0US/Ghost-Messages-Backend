@@ -1,5 +1,4 @@
 import mongoose from "mongoose";
-import { enums } from "../../common/index.js";
 
 const messageSchema = new mongoose.Schema(
   {

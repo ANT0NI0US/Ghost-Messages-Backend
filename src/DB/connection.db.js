@@ -9,10 +9,14 @@ export const BootstrapDB = async (app) => {
       serverSelectionTimeoutMS: 5000,
     });
     console.log("DB CONNECTED 💥");
-    await models.UserModel.syncIndexes();
-    await models.MessageModel.syncIndexes();
-    await models.ConversationModel.syncIndexes();
-    await models.RequestModel.syncIndexes();
+
+        if (configService.NODE_ENV === "development") {
+      await models.UserModel.syncIndexes();
+      await models.MessageModel.syncIndexes();
+      await models.ConversationModel.syncIndexes();
+      await models.RequestModel.syncIndexes();
+    }
+
     await connectRedis();
     app.listen(configService.PORT, () => {
       console.log(`we are running on port ${configService.PORT}`);
