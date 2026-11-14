@@ -2,10 +2,15 @@ import cors from "cors";
 import express from "express";
 import helmet from "helmet";
 import morgan from "morgan";
+import configService from "../config/config.service.js";
 import { limiter, translate } from "./common/index.js";
 import { BootstrapDB } from "./DB/connection.db.js";
 import * as middleware from "./middleware/index.js";
 import * as modules from "./modules/index.js";
+
+if (configService.NODE_ENV != "development") {
+  console.log = () => {};
+}
 
 const app = express();
 await BootstrapDB(app);

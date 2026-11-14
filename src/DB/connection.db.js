@@ -8,9 +8,9 @@ export const BootstrapDB = async (app) => {
     await mongoose.connect(configService.DB_URI, {
       serverSelectionTimeoutMS: 5000,
     });
-    console.log("DB CONNECTED 💥");
+    console.info("DB CONNECTED 💥");
 
-        if (configService.NODE_ENV === "development") {
+    if (configService.NODE_ENV === "development") {
       await models.UserModel.syncIndexes();
       await models.MessageModel.syncIndexes();
       await models.ConversationModel.syncIndexes();
@@ -19,11 +19,11 @@ export const BootstrapDB = async (app) => {
 
     await connectRedis();
     app.listen(configService.PORT, () => {
-      console.log(`we are running on port ${configService.PORT}`);
+      console.info(`we are running on port ${configService.PORT}`);
     });
   } catch (error) {
-    console.log("FAILED TO CONNECT DB ✖");
-    console.log(error);
+    console.error("FAILED TO CONNECT DB ✖");
+    console.error(error);
     process.exit(1);
   }
 };

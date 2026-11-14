@@ -8,7 +8,7 @@ async function fromWhere(ip) {
   try {
     return geoip.lookup(ip);
   } catch (error) {
-    console.log(`fail to detect request origin`);
+    console.error(`fail to detect request origin`);
   }
 }
 

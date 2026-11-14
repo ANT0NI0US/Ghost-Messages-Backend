@@ -8,7 +8,7 @@
   },
   "scripts": {
     "start:dev": "cross-env NODE_ENV=development node --watch-path=./src ./src/main.js",
-    "start:prod": "cross-env NODE_ENV=production pm2 start src/main.js -i max"
+    "start:prod": "cross-env NODE_ENV=production pm2 start src/main.js -i max --name ghost-messages-backend"
   },
   "keywords": [
     "nodejs",
