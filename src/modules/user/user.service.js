@@ -90,9 +90,24 @@ export const profileImage = async (user, file) => {
   // keep the old image before overwriting it
   const oldImage = user.image;
 
-  user.image = file.path;
-  // we use validateModifiedOnly: true cause we remove password from back in all cases and we don't want to validate it.
-  await user.save({ validateModifiedOnly: true });
+  const newImage = file.path;
+
+  /*
+    ? using user.save()
+    user.image = newImage;
+    ! we use validateModifiedOnly: true cause we remove password from back in all cases and we don't want to validate it.
+    await user.save({ validateModifiedOnly: true });
+    */
+
+  // ? using findByIdAndUpdate()
+  await queries.findByIdAndUpdate({
+    model: models.UserModel,
+    id: user._id,
+    update: {
+      image: newImage,
+    },
+  });
+
   await services.del({ key: security.userBaseProfile({ userId: user._id }) });
 
   // remove the old image only after the new one is saved
@@ -100,15 +115,27 @@ export const profileImage = async (user, file) => {
     await fileUpload.deleteLocalFile({ url: oldImage });
   }
 
-  return user.image;
+  return newImage;
 };
 
 export const deleteProfileImage = async (user) => {
   const profileImageUrl = user.image;
 
-  // after: removes the field from the document (same as a user who never uploaded)
-  user.set("image", undefined);
-  await user.save({ validateModifiedOnly: true });
+  /*
+    ? using user.save()
+    ! after: removes the field from the document (same as a user who never uploaded)
+    user.set("image", undefined);
+    await user.save({ validateModifiedOnly: true });
+  */
+
+  // ? using findByIdAndUpdate()
+  await queries.findByIdAndUpdate({
+    model: models.UserModel,
+    id: user._id,
+    update: {
+      $unset: { image: 1 },
+    },
+  });
 
   await services.del({ key: security.userBaseProfile({ userId: user._id }) });
 
@@ -121,8 +148,23 @@ export const deleteProfileImage = async (user) => {
 export const coverImages = async (user, files) => {
   const oldCoverImages = user.coverImages;
 
-  user.coverImages = files.map((ele) => ele.path);
-  await user.save({ validateModifiedOnly: true });
+  const newCoverImages = files.map((ele) => ele.path);
+
+  /*
+    ? using user.save()
+    user.coverImages = newCoverImages;
+    await user.save({ validateModifiedOnly: true });
+  */
+
+  // ? using findByIdAndUpdate()
+  await queries.findByIdAndUpdate({
+    model: models.UserModel,
+    id: user._id,
+    update: {
+      coverImages: newCoverImages,
+    },
+  });
+
   await services.del({ key: security.userBaseProfile({ userId: user._id }) });
 
   if (oldCoverImages.length) {
@@ -133,7 +175,7 @@ export const coverImages = async (user, files) => {
     );
   }
 
-  return user.coverImages;
+  return newCoverImages;
 };
 
 export const updateStatus = async (admin, { userId }, { status }) => {

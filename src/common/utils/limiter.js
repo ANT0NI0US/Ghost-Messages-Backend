@@ -36,7 +36,7 @@ export const generateRateLimiter = ({
     },
     keyGenerator: function (req) {
       const ip = ipKeyGenerator(req.ip, 52);
-      return `${req.ip}::${req.path}`;
+      return `${ip}::${req.path}`;
     },
     store: {
       async incr(key, cb) {

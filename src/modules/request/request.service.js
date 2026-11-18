@@ -66,8 +66,17 @@ export const takeAnActionToRequest = async (
     });
   }
 
-  request.status = action;
-  await request.save();
+  const updatedRequest = await queries.findOneAndUpdate({
+    model: models.RequestModel,
+    filter: { _id: request._id, status: enums.RequestStatusEnum.PENDING },
+    update: { status: action },
+  });
+
+  if (!updatedRequest) {
+    throw exceptions.BadRequestException({
+      message: "error.requestAlreadyHandled",
+    });
+  }
 
   if (action === enums.ActionInRequestEnum.ACCEPTED) {
     const conversation = await queries.create({
@@ -86,7 +95,7 @@ export const takeAnActionToRequest = async (
     });
   }
 
-  return request;
+  return updatedRequest;
 };
 
 export const createRequest = async ({ messageId } = {}, user) => {

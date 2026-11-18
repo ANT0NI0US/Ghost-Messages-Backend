@@ -151,7 +151,8 @@
     "unexpectedFileField": "Unexpected file field name",
     "invalidUpload": "Invalid file upload",
     "twoStepVerificationAlreadyEnabled": "Two step verification is already enabled for this account",
-    "twoStepVerificationNotEnabled": "Two step verification is not enabled for this account"
+    "twoStepVerificationNotEnabled": "Two step verification is not enabled for this account",
+    "concurrentUpdate": "This data was changed by another request, please try again"
   },
   "success": {
     "done": "Done",
@@ -183,7 +184,8 @@
     "userDeleted": "User deleted successfully",
     "profileImageUpdated": "Profile image updated successfully",
     "coverImagesUpdated": "Cover images updated successfully",
-    "profileImageDeleted": "Profile image deleted successfully"
+    "profileImageDeleted": "Profile image deleted successfully",
+    "otpSentIfRegistered": "If this email is registered, a verification code will be sent to it shortly"
   },
   "emailTemplate": {
     "confirmEmailTitle": "Email Confirmation",

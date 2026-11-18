@@ -151,7 +151,8 @@
     "unexpectedFileField": "اسم حقل الملف غير صحيح",
     "invalidUpload": "رفع الملف غير صالح",
     "twoStepVerificationAlreadyEnabled": "تم تفعيل التحقق بخطوتين لهذا الحساب بالفعل",
-    "twoStepVerificationNotEnabled": "التحقق بخطوتين غير مفعل لهذا الحساب"
+    "twoStepVerificationNotEnabled": "التحقق بخطوتين غير مفعل لهذا الحساب",
+    "concurrentUpdate": "تم تعديل هذه البيانات من طلب آخر، من فضلك حاول مرة أخرى"
   },
   "success": {
     "done": "تم بنجاح",
@@ -183,7 +184,8 @@
     "userDeleted": "تم حذف المستخدم بنجاح",
     "profileImageUpdated": "تم تحديث صورة الملف الشخصي بنجاح",
     "coverImagesUpdated": "تم تحديث صور الغلاف بنجاح",
-    "profileImageDeleted": "تم حذف صورة الملف الشخصي بنجاح"
+    "profileImageDeleted": "تم حذف صورة الملف الشخصي بنجاح",
+    "otpSentIfRegistered": "إذا كان هذا البريد مسجلاً لدينا، فسيصلك رمز التحقق خلال دقائق"
   },
   "emailTemplate": {
     "confirmEmailTitle": "تأكيد البريد الإلكتروني",
